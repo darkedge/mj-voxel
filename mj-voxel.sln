@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "core", "core\core.vcxproj", "{D4CC079C-163C-48A7-81DC-5BA2D2E4B115}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mod", "mod\mod.csproj", "{6E9AF4CA-C384-43C2-A8C8-4F225CC34915}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "game", "game\game.csproj", "{6E9AF4CA-C384-43C2-A8C8-4F225CC34915}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

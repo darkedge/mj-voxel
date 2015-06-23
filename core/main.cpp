@@ -1,8 +1,4 @@
-#include <glad/glad.h>
-#include <cstdlib>
-#include <mono/jit/jit.h>
-#include <mono/metadata/assembly.h>
-#include <GLFW/glfw3.h>
+#include "CorePCH.h"
 
 GLFWwindow *g_Window;
 

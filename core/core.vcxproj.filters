@@ -3,5 +3,11 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="GBuffer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GBuffer.h" />
+    <ClInclude Include="CorePCH.h" />
+    <ClInclude Include="IntegralTypes.h" />
   </ItemGroup>
 </Project>

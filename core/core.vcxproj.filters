@@ -9,5 +9,6 @@
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="CorePCH.h" />
     <ClInclude Include="IntegralTypes.h" />
+    <ClInclude Include="Vector.h" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,10 @@
 #include <glad/glad.h>
 
 // C Standard Library
+#include <cassert>
 #include <cstdlib>
+
+// STL (Avoid!)
 
 // Mono
 #include <mono/jit/jit.h>
@@ -11,4 +14,6 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+// Internal libraries
 #include "IntegralTypes.h"
+#include "Vector.h"

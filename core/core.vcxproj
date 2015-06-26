@@ -84,6 +84,7 @@
     <ClInclude Include="CorePCH.h" />
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="IntegralTypes.h" />
+    <ClInclude Include="Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

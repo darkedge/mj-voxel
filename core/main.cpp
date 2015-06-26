@@ -1,4 +1,5 @@
 #include "CorePCH.h"
+#include "Vector.h"
 
 GLFWwindow *g_Window;
 
@@ -14,8 +15,7 @@ void bla() {
 
 	MonoImage *image = mono_assembly_get_image( assembly );
 
-	MonoClass *pClass = mono_class_from_name( image,
-						"mod", "MyClass" );
+	MonoClass *pClass = mono_class_from_name( image, "mod", "MyClass" );
 
 	// Get the constructor of the class.
 	MonoMethod *pConstructorMethod = mono_class_get_method_from_name_flags( pClass,

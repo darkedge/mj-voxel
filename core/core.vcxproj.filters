@@ -4,11 +4,15 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GBuffer.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="Math.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="CorePCH.h" />
     <ClInclude Include="IntegralTypes.h" />
     <ClInclude Include="Vector.h" />
+    <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="Math.h" />
   </ItemGroup>
 </Project>

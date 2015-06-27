@@ -27,7 +27,7 @@ public:
 	float GetFieldOfView() const { return m_FieldOfView; }
 
 private:
-	math::Vec3 m_BackGround;
+	math::float3 m_BackGround;
 	float m_FieldOfView;
 	float m_ZNear = 0.3f;
 	float m_ZFar = 1000.0f;

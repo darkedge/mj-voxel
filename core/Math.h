@@ -3,19 +3,171 @@
 namespace mj {
 namespace math {
 
-template<typename T>
-float Dot( T a, T b ) { return 1.0f; }
-
-
-template<typename T>
-struct tvec3 {
-	T x, y, z;
-
-	int32 length() const {
-		return 3;
-	}
+/************************************************************************/
+/* TYPES                                                                */
+/************************************************************************/
+#if 1
+template<typename T, int32 N>
+struct vec_t {
+	vec_t() {}
+	T data[N];
 };
 
+// Specializations for n = 2, 3, 4
+template<typename T>
+struct vec_t<T, 2> {
+	vec_t() {}
+	vec_t( T x, T y ) : x( x ), y( y ) {}
+	union {
+		T data[2];
+		struct { T x, y; };
+	};
+};
+
+template<typename T>
+struct vec_t<T, 3> {
+	vec_t() {}
+	vec_t( T x, T y, T z ) : x( x ), y( y ), z( z ) {}
+	union {
+		T data[3];
+		struct { T x, y, z; };
+		//vec_t<T, 2> xy;
+	};
+};
+
+template<typename T>
+struct vec_t<T, 4> {
+	vec_t() {}
+	vec_t( T x, T y, T z, T w ) : x( x ), y( y ), z( z ), w( w ) {}
+	union {
+		T data[4];
+		struct { T x, y, z, w; };
+		//vec_t<T, 2> xy;
+		//vec_t<T, 3> xyz;
+	};
+};
+
+template<typename T, int32 ROWS, int32 COLS>
+struct mat_t {
+	T data[ROWS][COLS];
+};
+#endif
+
+// CRTP idea
+#if 0
+template<template<typename> class V, typename T, int32 N>
+struct VecBase {
+	VecBase() {}
+
+	T operator[]( int32 i ) {
+		static_assert( i >= 0 );
+		static_assert( i < N );
+		return data[i];
+	}
+
+	T data[N];
+};
+
+template<typename T>
+class Vec3 : public VecBase<Vec3, T, 3> {
+	Vec3( T x, T y, T z ) : x( x ), y( y ), z( z ) {}
+
+	T &x = data[0];
+	T &y = data[1];
+	T &z = data[2];
+};
+#endif
+
+/************************************************************************/
+/* CONSTANTS                                                            */
+/************************************************************************/
+#if 1
+static const vec_t<float, 2> kZeros2f( 0.0f, 0.0f );
+static const vec_t<float, 2> kOnes2f( 1.0f, 1.0f );
+static const vec_t<float, 2> kAxisX2f( 1.0f, 0.0f );
+static const vec_t<float, 2> kAxisY2f( 0.0f, 1.0f );
+
+static const vec_t<float, 3> kZeros3f( 0.0f, 0.0f, 0.0f );
+static const vec_t<float, 3> kOnes3f( 1.0f, 1.0f, 1.0f );
+static const vec_t<float, 3> kAxisX3f( 1.0f, 0.0f, 0.0f );
+static const vec_t<float, 3> kAxisY3f( 0.0f, 1.0f, 0.0f );
+static const vec_t<float, 3> kAxisZ3f( 0.0f, 0.0f, 1.0f );
+
+static const vec_t<float, 4> kZeros4f( 0.0f, 0.0f, 0.0f, 0.0f );
+static const vec_t<float, 4> kOnes4f( 1.0f, 1.0f, 1.0f, 1.0f );
+static const vec_t<float, 4> kAxisX4f( 1.0f, 0.0f, 0.0f, 0.0f );
+static const vec_t<float, 4> kAxisY4f( 0.0f, 1.0f, 0.0f, 0.0f );
+static const vec_t<float, 4> kAxisZ4f( 0.0f, 0.0f, 1.0f, 0.0f );
+static const vec_t<float, 4> kAxisW4f( 0.0f, 0.0f, 0.0f, 1.0f );
+#endif
+
+template<typename T>
+T Zero() {
+	return T( 0 );
+}
+
+template<typename T>
+T One() {
+	return T( 1 );
+}
+
+template<typename T = float>
+T Pi() {
+	return T( 3.14159265358979323846264338327950288 );
+}
+
+/************************************************************************/
+/* FUNCTIONS                                                            */
+/************************************************************************/
+
+// Dot product
+template<typename T, int32 N, template<typename, int32> class V>
+T Dot( V<T, N> a, V<T, N> b ) {
+#if 0
+	T r = Zero<T>();
+	for ( int32 i = 0; i < N; i++ ) {
+		r += a.data[i] * b.data[i];
+	}
+	return r;
+#else
+	V<T, N> tmp = a * b;
+	T r = Zero<T>();
+	for ( int32 i = 0; i < N; i++ ) {
+		r += tmp.data[i];
+	}
+	return r;
+#endif
+}
+
+// Cross product
+template<typename T, template<typename, int32> class V>
+V<T, 3> Cross( V<T, 3> x, V<T, 3> y ) {
+	return V<T, 3>(
+			   x.y * y.z - y.y * x.z,
+			   x.z * y.x - y.z * x.x,
+			   x.x * y.y - y.x * x.y );
+}
+
+// Vector scaling (TODO)
+
+// Component-wise multiplication
+template<typename T, int32 N, template<typename, int32> class V>
+V<T, N> operator*( V<T, N> a, V<T, N> b ) {
+	V<T, N> r;
+	for ( int32 i = 0; i < N; i++ ) {
+		r.data[i] = a.data[i] * b.data[i];
+	}
+	return r;
+}
+
+/************************************************************************/
+/* TYPEDEFS                                                             */
+/************************************************************************/
+typedef vec_t<float, 2>float2;
+typedef vec_t<float, 3>float3;
+typedef mat_t<float, 4, 4>float4x4;
+
+#if 0
 template<typename T>
 struct tvec4 {
 	T x, y, z, w;
@@ -36,10 +188,10 @@ struct tvec4 {
 template<typename T>
 class tmat4x4 {
 public:
-	typedef tvec4<T> col_type;
-	typedef tvec4<T> row_type;
-	typedef tmat4x4<T> type;
-	typedef tmat4x4<T> transpose_type;
+	typedef tvec4<T>col_type;
+	typedef tvec4<T>row_type;
+	typedef tmat4x4<T>type;
+	typedef tmat4x4<T>transpose_type;
 	typedef T value_type;
 public:
 	// TODO: Ctor
@@ -49,8 +201,8 @@ public:
 };
 
 // Matrix * Vector (WTF?)
-template <typename T>
-typename tmat4x4<T>::col_type operator*( tmat4x4<T> const &m, typename tmat4x4<T>::row_type const &v ) {
+template<typename T>
+typename tmat4x4<T>::col_type operator*( tmat4x4<T>const &m, typename tmat4x4<T>::row_type const &v ) {
 	/*
 	__m128 v0 = _mm_shuffle_ps(v.data, v.data, _MM_SHUFFLE(0, 0, 0, 0));
 	__m128 v1 = _mm_shuffle_ps(v.data, v.data, _MM_SHUFFLE(1, 1, 1, 1));
@@ -93,8 +245,8 @@ typename tmat4x4<T>::col_type operator*( tmat4x4<T> const &m, typename tmat4x4<T
 }
 
 // Matrix  * Matrix
-template <typename T>
-tmat4x4<T> operator*( tmat4x4<T> const &m1, tmat4x4<T> const &m2 ) {
+template<typename T>
+tmat4x4<T>operator*( tmat4x4<T>const &m1, tmat4x4<T>const &m2 ) {
 	typename tmat4x4<T>::col_type const SrcA0 = m1[0];
 	typename tmat4x4<T>::col_type const SrcA1 = m1[1];
 	typename tmat4x4<T>::col_type const SrcA2 = m1[2];
@@ -105,7 +257,7 @@ tmat4x4<T> operator*( tmat4x4<T> const &m1, tmat4x4<T> const &m2 ) {
 	typename tmat4x4<T>::col_type const SrcB2 = m2[2];
 	typename tmat4x4<T>::col_type const SrcB3 = m2[3];
 
-	tmat4x4<T> Result;
+	tmat4x4<T>Result;
 	Result[0] = SrcA0 * SrcB0[0] + SrcA1 * SrcB0[1] + SrcA2 * SrcB0[2] + SrcA3 * SrcB0[3];
 	Result[1] = SrcA0 * SrcB1[0] + SrcA1 * SrcB1[1] + SrcA2 * SrcB1[2] + SrcA3 * SrcB1[3];
 	Result[2] = SrcA0 * SrcB2[0] + SrcA1 * SrcB2[1] + SrcA2 * SrcB2[2] + SrcA3 * SrcB2[3];
@@ -113,9 +265,10 @@ tmat4x4<T> operator*( tmat4x4<T> const &m1, tmat4x4<T> const &m2 ) {
 	return Result;
 }
 
-typedef tvec3<float> Vec3;
-typedef tvec4<float> Vec4;
-typedef tmat4x4<float> Mat4;
+typedef tvec3<float>Vec3;
+typedef tvec4<float>Vec4;
+typedef tmat4x4<float>Mat4;
+#endif
 
 } // namespace mj::math
 } // namespace mj

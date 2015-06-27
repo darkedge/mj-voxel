@@ -76,13 +76,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Math.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CorePCH.h" />
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="IntegralTypes.h" />

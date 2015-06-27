@@ -27,13 +27,6 @@ public:
 	RenderTexture( const RenderTextureDescriptor &descriptor );
 	~RenderTexture();
 
-#if 0
-	int32 GetWidth() const { return m_Width; }
-	int32 GetHeight() const { return m_Height; }
-	WrapMode GetWrapMode() const { return m_WrapMode; }
-	FilterMode GetFilterMode() const { return m_FilterMode; }
-	GLenum GetColorFormat() const { return m_ColorFormat; }
-#endif
 	void Bind();
 
 private:
@@ -61,5 +54,5 @@ struct RenderTextureDescriptor {
 	RenderTexture::FilterMode filterMode = RenderTexture::FilterMode::Bilinear;
 	int32 anisoLevel = 0;
 };
-}
-}
+} // namespace mj::gl
+} // namespace mj

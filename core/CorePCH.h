@@ -16,5 +16,5 @@
 
 // Internal libraries
 #include "IntegralTypes.h"
-#include "Math.h"
+#include "MathUtil.h"
 #include "Vector.h"

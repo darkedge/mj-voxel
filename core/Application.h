@@ -8,5 +8,9 @@ public:
 
 	void Init(const char *name, int32 width, int32 height);
 	void Run();
+
+private:
+	math::Vector3 position;
+	math::Quaternion rotation;
 };
 } // namespace mj

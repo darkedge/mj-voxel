@@ -82,6 +82,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -89,8 +90,9 @@
     <ClInclude Include="CorePCH.h" />
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="IntegralTypes.h" />
-    <ClInclude Include="Math.h" />
+    <ClInclude Include="MathUtil.h" />
     <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="Transform.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

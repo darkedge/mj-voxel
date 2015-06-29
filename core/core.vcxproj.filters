@@ -8,6 +8,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GBuffer.h" />
@@ -19,5 +20,6 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="MathUtil.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
 </Project>

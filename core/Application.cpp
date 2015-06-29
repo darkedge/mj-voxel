@@ -1,5 +1,6 @@
 #include "CorePCH.h"
 #include "Application.h"
+#include "World.h"
 
 GLFWwindow *g_Window;
 
@@ -86,10 +87,12 @@ void mj::Application::Init( const char *name, int32 width, int32 height ) {
 	glClearColor( 0.192156862745098f, 0.3019607843137255f, 0.4745098039215686f, 1.0f );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	glDepthFunc( GL_LEQUAL );
+
+	world = new World();
 }
 
 mj::Application::~Application() {
-
+	delete world;
 }
 
 void mj::Application::Run() {
@@ -105,7 +108,7 @@ void mj::Application::Run() {
 		// TODO Camera's responsibility
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-		// TODO: Update
+		world->Tick();
 		glfwSwapBuffers( g_Window );
 	}
 

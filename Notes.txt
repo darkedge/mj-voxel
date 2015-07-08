@@ -1,2 +1,3 @@
 RenderTexture calls glBindFrameBuffer and glViewport
 	Let Camera class call glClear
+Display options (including borderless window)

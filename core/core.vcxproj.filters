@@ -12,6 +12,7 @@
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="MeshManager.cpp" />
+    <ClCompile Include="Program.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GBuffer.h" />
@@ -27,5 +28,6 @@
     <ClInclude Include="Block.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="MeshManager.h" />
+    <ClInclude Include="Program.h" />
   </ItemGroup>
 </Project>

@@ -21,6 +21,7 @@ mj::World::World()
 
 mj::World::~World()
 {
+
 }
 
 void mj::World::Tick()
@@ -29,6 +30,8 @@ void mj::World::Tick()
 
 	// Bind camera
 	m_camera->Bind();
+
+	// TODO: bind material, bind vertex buffers (in chunks?)
 
 	// Draw voxels
 	for ( int32 i = 0; i < m_chunks.Size(); i++ )

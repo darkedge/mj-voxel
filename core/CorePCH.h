@@ -5,8 +5,11 @@
 #include <cassert>
 #include <cstdlib>
 
-// STL (TODO: Stop using these)
-#include <vector>
+// STL
+#include <fstream>
+
+// STL Containers (FIXME: Do not use these)
+//#include <vector>
 
 // Mono
 #include <mono/jit/jit.h>

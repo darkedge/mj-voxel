@@ -77,21 +77,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Block.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Block.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Chunk.h" />
     <ClInclude Include="CorePCH.h" />
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="IntegralTypes.h" />
     <ClInclude Include="MathUtil.h" />
+    <ClInclude Include="MeshManager.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vector.h" />

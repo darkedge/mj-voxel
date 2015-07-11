@@ -9,6 +9,9 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="World.cpp" />
+    <ClCompile Include="Block.cpp" />
+    <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="MeshManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GBuffer.h" />
@@ -21,5 +24,8 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="MathUtil.h" />
     <ClInclude Include="World.h" />
+    <ClInclude Include="Block.h" />
+    <ClInclude Include="Chunk.h" />
+    <ClInclude Include="MeshManager.h" />
   </ItemGroup>
 </Project>

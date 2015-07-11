@@ -273,32 +273,35 @@ struct quat_t {
 /************************************************************************/
 /* TYPEDEFS                                                             */
 /************************************************************************/
-typedef vec2_t<float> Vector2;
-typedef vec3_t<float> Vector3;
-typedef vec4_t<float> Vector4;
+typedef vec2_t<float> float2;
+typedef vec3_t<float> float3;
+typedef vec4_t<float> float4;
+typedef vec2_t<int32> int2;
+typedef vec3_t<int32> int3;
+typedef vec4_t<int32> int4;
 typedef mat4x4_t<float> Matrix4x4;
 typedef quat_t<float> Quaternion;
 
 /************************************************************************/
 /* CONSTANTS                                                            */
 /************************************************************************/
-static const Vector2 kZeros2f( 0.0f, 0.0f );
-static const Vector2 kOnes2f( 1.0f, 1.0f );
-static const Vector2 kAxisX2f( 1.0f, 0.0f );
-static const Vector2 kAxisY2f( 0.0f, 1.0f );
+static const float2 kZeros2f( 0.0f, 0.0f );
+static const float2 kOnes2f( 1.0f, 1.0f );
+static const float2 kAxisX2f( 1.0f, 0.0f );
+static const float2 kAxisY2f( 0.0f, 1.0f );
 
-static const Vector3 kZeros3f( 0.0f, 0.0f, 0.0f );
-static const Vector3 kOnes3f( 1.0f, 1.0f, 1.0f );
-static const Vector3 kAxisX3f( 1.0f, 0.0f, 0.0f );
-static const Vector3 kAxisY3f( 0.0f, 1.0f, 0.0f );
-static const Vector3 kAxisZ3f( 0.0f, 0.0f, 1.0f );
+static const float3 kZeros3f( 0.0f, 0.0f, 0.0f );
+static const float3 kOnes3f( 1.0f, 1.0f, 1.0f );
+static const float3 kAxisX3f( 1.0f, 0.0f, 0.0f );
+static const float3 kAxisY3f( 0.0f, 1.0f, 0.0f );
+static const float3 kAxisZ3f( 0.0f, 0.0f, 1.0f );
 
-static const Vector4 kZeros4f( 0.0f, 0.0f, 0.0f, 0.0f );
-static const Vector4 kOnes4f( 1.0f, 1.0f, 1.0f, 1.0f );
-static const Vector4 kAxisX4f( 1.0f, 0.0f, 0.0f, 0.0f );
-static const Vector4 kAxisY4f( 0.0f, 1.0f, 0.0f, 0.0f );
-static const Vector4 kAxisZ4f( 0.0f, 0.0f, 1.0f, 0.0f );
-static const Vector4 kAxisW4f( 0.0f, 0.0f, 0.0f, 1.0f );
+static const float4 kZeros4f( 0.0f, 0.0f, 0.0f, 0.0f );
+static const float4 kOnes4f( 1.0f, 1.0f, 1.0f, 1.0f );
+static const float4 kAxisX4f( 1.0f, 0.0f, 0.0f, 0.0f );
+static const float4 kAxisY4f( 0.0f, 1.0f, 0.0f, 0.0f );
+static const float4 kAxisZ4f( 0.0f, 0.0f, 1.0f, 0.0f );
+static const float4 kAxisW4f( 0.0f, 0.0f, 0.0f, 1.0f );
 
 // TODO: Maybe specialize these using the values above
 template<typename T>
@@ -523,5 +526,15 @@ mat4x4_t<T>operator*( const mat4x4_t<T> &m1, const mat4x4_t<T> &m2 ) {
 	result[3] = SrcA0 * SrcB3[0] + SrcA1 * SrcB3[1] + SrcA2 * SrcB3[2] + SrcA3 * SrcB3[3];
 	return result;
 }
+
+/************************************************************************/
+/* FUNCTIONS                                                            */
+/************************************************************************/
+
+template<typename T>
+T Min( T a, T b ) { return (a < b) ? a : b; }
+template<typename T>
+T Max( T a, T b ) { return (a > b) ? a : b; }
+
 } // namespace mj::math
 } // namespace mj

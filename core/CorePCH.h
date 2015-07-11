@@ -5,7 +5,8 @@
 #include <cassert>
 #include <cstdlib>
 
-// STL (Avoid!)
+// STL (TODO: Stop using these)
+#include <vector>
 
 // Mono
 #include <mono/jit/jit.h>

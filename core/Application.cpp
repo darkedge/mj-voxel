@@ -3,12 +3,16 @@
 #include "World.h"
 
 GLFWwindow *g_Window;
+int32 mj::Application::s_height = -1;
+int32 mj::Application::s_width = -1;
 
-void bla() {
+void bla()
+{
 	mono_set_dirs( "C:\\Program Files (x86)\\Mono\\lib", "C:\\Program Files (x86)\\Mono\\etc" );
 	MonoDomain *domain = mono_jit_init( "hoi?" ); // Can be anything
 	MonoAssembly *assembly = mono_domain_assembly_open( domain, "mod.dll" );
-	if ( !assembly ) {
+	if ( !assembly )
+	{
 		// Assembly not found
 		mono_jit_cleanup( domain );
 		return;
@@ -20,7 +24,7 @@ void bla() {
 
 	// Get the constructor of the class.
 	MonoMethod *pConstructorMethod = mono_class_get_method_from_name_flags( pClass,
-									 ".ctor", -1, 0x0800 ); // METHOD_ATTRIBUTE_SPECIAL_NAME
+																			".ctor", -1, 0x0800 ); // METHOD_ATTRIBUTE_SPECIAL_NAME
 
 	// Create a new instance of the class.
 	MonoObject *pObject = mono_object_new( domain, pClass );
@@ -35,16 +39,21 @@ void bla() {
 	mono_jit_cleanup( domain );
 }
 
-void GlfwErrorCallback( int, const char *description ) {
+void GlfwErrorCallback( int, const char *description )
+{
 	fputs( description, stderr );
 	fputs( "\n", stderr );
 }
 
-mj::Application::Application( const char *name /* = "" */, int32 width /* = 1280 */, int32 height /* = 720 */ ) {
-	Init( name, width, height );
+mj::Application::Application( const char *name /* = "" */, int32 width /* = 1280 */, int32 height /* = 720 */ )
+{
+	s_width = width;
+	s_height = height;
+	Init( name );
 }
 
-void mj::Application::Init( const char *name, int32 width, int32 height ) {
+void mj::Application::Init( const char *name )
+{
 	glfwSetErrorCallback( GlfwErrorCallback );
 
 	if ( !glfwInit() )
@@ -58,7 +67,7 @@ void mj::Application::Init( const char *name, int32 width, int32 height ) {
 	glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE );
 #endif
 
-	g_Window = glfwCreateWindow( width, height, name, nullptr, nullptr );
+	g_Window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
 	glfwMakeContextCurrent( g_Window );
 
 	// TODO: Callbacks
@@ -75,7 +84,8 @@ void mj::Application::Init( const char *name, int32 width, int32 height ) {
 	/************************************************************************/
 	/* OpenGL                                                               */
 	/************************************************************************/
-	if ( !gladLoadGL() ) {
+	if ( !gladLoadGL() )
+	{
 		printf( "Failed to init glad!\n" );
 		std::exit( EXIT_FAILURE );
 	}
@@ -91,22 +101,22 @@ void mj::Application::Init( const char *name, int32 width, int32 height ) {
 	world = new World();
 }
 
-mj::Application::~Application() {
+mj::Application::~Application()
+{
 	delete world;
 }
 
-void mj::Application::Run() {
+void mj::Application::Run()
+{
 	float dt = 0.0f;
 	double lastTime = glfwGetTime();
-	while ( !glfwWindowShouldClose( g_Window ) ) {
+	while ( !glfwWindowShouldClose( g_Window ) )
+	{
 		double now = glfwGetTime();
-		dt = ( float )( now - lastTime );
+		dt = (float)( now - lastTime );
 		lastTime = now;
 
 		glfwPollEvents();
-
-		// TODO Camera's responsibility
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 		world->Tick();
 		glfwSwapBuffers( g_Window );

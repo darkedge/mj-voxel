@@ -1,15 +1,24 @@
 #pragma once
-namespace mj {
-class Camera;
-class Transform;
-class World {
-public:
-	World();
-	~World();
+#include "Chunk.h"
 
-	void Tick();
-private:
-	Camera *camera = nullptr;
-	Transform *player = nullptr;
-};
+namespace mj {
+	namespace gl {
+		class Camera;
+	}
+	class Chunk;
+	class Transform;
+	class World
+	{
+	public:
+		World();
+		~World();
+
+		void Tick();
+	private:
+		gl::Camera *m_camera = nullptr;
+		Transform *m_player = nullptr;
+
+		Vector<Chunk> m_chunks;
+		//std::vector<Chunk> m_chunks;
+	};
 }

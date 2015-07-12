@@ -5,8 +5,8 @@
 
 mj::gl::Camera::Camera()
 {
+	m_projectionMatrix = mj::math::Perspective( m_fieldOfView, (float) mj::Application::GetWidth() / mj::Application::GetHeight(), m_zNear, m_zFar );
 }
-
 
 mj::gl::Camera::~Camera()
 {

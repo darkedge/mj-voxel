@@ -31,7 +31,7 @@ void mj::Transform::SetRotation( const mj::math::float3 &degrees )
 	SetRotation( mj::math::Quaternion( mj::math::Deg2Rad( degrees ) ) );
 }
 
-mj::math::Matrix4x4 mj::Transform::GetLocalToWorldMatrix() const
+mj::math::mat4 mj::Transform::GetLocalToWorldMatrix() const
 {
 	if ( matrixIsDirty )
 	{
@@ -43,7 +43,7 @@ mj::math::Matrix4x4 mj::Transform::GetLocalToWorldMatrix() const
 	return localMatrix;
 }
 
-mj::math::Matrix4x4 mj::Transform::GetWorldToLocalMatrix() const
+mj::math::mat4 mj::Transform::GetWorldToLocalMatrix() const
 {
 	return mj::math::Inverse( GetLocalToWorldMatrix() );
 }

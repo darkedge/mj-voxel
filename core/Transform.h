@@ -11,9 +11,9 @@ public:
 	math::float3 TransformVector( const math::float3 &vector ) const;
 
 	// Returns the matrix that transforms a point from local space into world space.
-	math::Matrix4x4 GetLocalToWorldMatrix() const;
+	math::mat4 GetLocalToWorldMatrix() const;
 	// Returns the matrix that transforms a point from world space into local space.
-	math::Matrix4x4 GetWorldToLocalMatrix() const;
+	math::mat4 GetWorldToLocalMatrix() const;
 
 	// Returns the position of the transform relative to the parent transform.
 	math::float3 GetPosition() const { return position; }
@@ -46,6 +46,6 @@ private:
 	math::Quaternion rotation;
 
 	mutable bool matrixIsDirty = true;
-	mutable math::Matrix4x4 localMatrix;
+	mutable math::mat4 localMatrix;
 };
 } // namespace mj

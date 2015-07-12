@@ -279,7 +279,7 @@ typedef vec4_t<float> float4;
 typedef vec2_t<int32> int2;
 typedef vec3_t<int32> int3;
 typedef vec4_t<int32> int4;
-typedef mat4x4_t<float> Matrix4x4;
+typedef mat4x4_t<float> mat4;
 typedef quat_t<float> Quaternion;
 
 /************************************************************************/
@@ -446,7 +446,8 @@ mat4x4_t<T> TranslationMatrix( const vec3_t<T> &v ) {
 }
 
 template<typename T>
-mat4x4_t<T> RotationMatrix( const quat_t<T> &q ) {
+mat4x4_t<T> RotationMatrix( const quat_t<T> &q )
+{
 	mat4x4_t<T> result( T( 1 ) );
 	T qxx( q.x * q.x );
 	T qyy( q.y * q.y );
@@ -472,6 +473,8 @@ mat4x4_t<T> RotationMatrix( const quat_t<T> &q ) {
 
 	return result;
 }
+
+mat4 Perspective( float fovy, float aspect, float zNear, float zFar );
 
 /************************************************************************/
 /* OPERATORS                                                            */

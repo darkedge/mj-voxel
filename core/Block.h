@@ -23,9 +23,10 @@ namespace mj
 		~Block();
 
 		bool IsActive() const { return m_active; }
+		void SetActive( bool active ) { this->m_active = active; }
 
 	private:
-		bool m_active = false;
+		bool m_active = true;
 		BlockType m_blockType;
 	};
 }

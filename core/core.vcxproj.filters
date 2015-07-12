@@ -30,4 +30,9 @@
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="Program.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{386dc69e-3b33-4534-9788-4174228057b2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>

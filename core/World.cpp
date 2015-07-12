@@ -2,19 +2,19 @@
 #include "World.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Program.h"
 
 mj::World::World()
 {
 	m_player = new mj::Transform();
 	m_camera = new mj::gl::Camera();
+	m_program = new mj::gl::Program( "", "" );
 
 	// Create world
-	for ( int x = 0; x < 10; x++ )
+	for ( int x = 0; x < 1; x++ )
 	{
-		for ( int z = 0; z < 10; z++ )
+		for ( int z = 0; z < 1; z++ )
 		{
-			//Chunk &chunk = m_chunks.Add();
-			//chunk.m_position = { x, 0, z };
 			m_chunks.Add( Chunk( { x, 0, z } ) );
 		}
 	}
@@ -32,7 +32,7 @@ void mj::World::Tick()
 	// Bind camera
 	m_camera->Bind();
 
-	// TODO: bind material, bind vertex buffers (in chunks?)
+	m_program->Bind();
 
 	// Draw voxels
 	for ( int32 i = 0; i < m_chunks.Size(); i++ )

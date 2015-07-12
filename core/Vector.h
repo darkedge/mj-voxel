@@ -6,10 +6,13 @@ namespace mj {
 	{
 	public:
 		Vector(); // TODO: other constructors
+		explicit Vector( int32 size );
 		~Vector();
 
 		T& Add(); // Adds one element and returns a reference to it.
-		T* Add( const T* ptr, int32 size );
+		T* Add( const T* ptr, int32 size ); // Adds an array of elements. Returns a pointer to the first added element.
+		T& Add( T &&element ); // Adds an element using move semantics.
+		T* Add( std::initializer_list<T> l );
 
 		void Resize( int32 size );
 		int32 Size() const;
@@ -44,9 +47,15 @@ namespace mj {
 	}
 
 	template<class T>
+	Vector<T>::Vector( int32 size )
+	{
+		Resize( size );
+	}
+
+	template<class T>
 	Vector<T>::~Vector()
 	{
-		delete m_ptr;
+		delete[] m_ptr;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -82,6 +91,31 @@ namespace mj {
 		return dst;
 	}
 
+	template<class T>
+	T& Vector<T>::Add( T &&element )
+	{
+		int32 oldSize = m_size;
+		Resize( m_size + 1 ); // changes m_size
+		T &dst = *( m_ptr + oldSize );
+		dst = std::move( element );
+		return dst;
+	}
+
+	template<class T>
+	T* Vector<T>::Add( std::initializer_list<T> l )
+	{
+		int32 oldSize = m_size;
+		Resize( m_size + l.size() ); // changes m_size
+		T* dst = m_ptr + oldSize;
+		int32 i = 0;
+		for ( auto it = l.begin(); it != l.end(); ++it )
+		{
+			dst[i] = std::move( *it );
+			i++;
+		}
+		return dst;
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
@@ -101,7 +135,7 @@ namespace mj {
 	void Vector<T>::ReallocRound( int32 size )
 	{
 		assert( size >= 0 );
-		int32 rounded = math::Max( (int32) (MinBytes / sizeof( T )), 1 );
+		int32 rounded = math::Max( (int32) ( MinBytes / sizeof( T ) ), 1 );
 		while ( size > rounded )
 			rounded <<= 1;
 		Realloc( rounded );
@@ -119,7 +153,7 @@ namespace mj {
 			int32 s = math::Min( size, m_size );
 			for ( int32 i = 0; i < s; i++ )
 			{
-				newPtr[i] = std::move(m_ptr[i]);
+				newPtr[i] = std::move( m_ptr[i] );
 			}
 		}
 		if ( m_ptr )

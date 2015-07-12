@@ -12,9 +12,11 @@ namespace mj {
 
 		static int32 GetWidth() { return s_width; }
 		static int32 GetHeight() { return s_height; }
+		static GLFWwindow* GetWindow() { return s_window; }
 
 	private:
 		static int32 s_width, s_height;
+		static GLFWwindow *s_window;
 
 		World *world;
 	};

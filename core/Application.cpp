@@ -2,7 +2,8 @@
 #include "Application.h"
 #include "World.h"
 
-GLFWwindow *g_Window;
+//GLFWwindow *g_Window;
+GLFWwindow *mj::Application::s_window = nullptr;
 int32 mj::Application::s_height = -1;
 int32 mj::Application::s_width = -1;
 
@@ -67,8 +68,8 @@ void mj::Application::Init( const char *name )
 	glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE );
 #endif
 
-	g_Window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
-	glfwMakeContextCurrent( g_Window );
+	s_window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
+	glfwMakeContextCurrent( s_window );
 
 	// TODO: Callbacks
 	// 	glfwSetKeyCallback(g_Window, GlfwKeyCallBack);
@@ -110,7 +111,7 @@ void mj::Application::Run()
 {
 	float dt = 0.0f;
 	double lastTime = glfwGetTime();
-	while ( !glfwWindowShouldClose( g_Window ) )
+	while ( !glfwWindowShouldClose( s_window ) )
 	{
 		double now = glfwGetTime();
 		dt = (float)( now - lastTime );
@@ -119,10 +120,10 @@ void mj::Application::Run()
 		glfwPollEvents();
 
 		world->Tick();
-		glfwSwapBuffers( g_Window );
+		glfwSwapBuffers( s_window );
 	}
 
-	glfwDestroyWindow( g_Window );
+	glfwDestroyWindow( s_window );
 	glfwTerminate();
 
 	std::exit( EXIT_SUCCESS );

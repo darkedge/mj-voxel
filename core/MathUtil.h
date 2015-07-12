@@ -32,7 +32,24 @@ struct vec2_t {
 		assert( i < 2 );
 		return value[i];
 	}
+
+	template <typename T>
+	vec2_t<T>& operator+=( const vec2_t<T> &v )
+	{
+		this->x += static_cast<T>( v.x );
+		this->y += static_cast<T>( v.y );
+		return *this;
+	}
 };
+
+// Component-wise subtraction
+template <typename T>
+vec2_t<T> operator-( vec2_t<T> const &v1, vec2_t<T> const &v2 )
+{
+	return vec2_t<T>(
+		v1.x - v2.x,
+		v1.y - v2.y );
+}
 
 /************************************************************************/
 /* Vector3                                                              */

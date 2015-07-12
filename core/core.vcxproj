@@ -82,7 +82,9 @@
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="MeshManager.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
@@ -96,6 +98,7 @@
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="CorePCH.h" />
     <ClInclude Include="GBuffer.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="IntegralTypes.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="MathUtil.h" />

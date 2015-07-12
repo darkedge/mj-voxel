@@ -34,6 +34,10 @@ void mj::World::Tick()
 
 	m_program->Bind();
 
+	math::mat4 mat = /* chunk location  * */ m_player->GetLocalToWorldMatrix() * m_camera->GetProjectionMatrix();
+
+	m_program->SetUniform( "mvp_matrix", mat );
+
 	// Draw voxels
 	for ( int32 i = 0; i < m_chunks.Size(); i++ )
 	{

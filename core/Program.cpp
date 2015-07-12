@@ -10,8 +10,47 @@ mj::gl::Program::Program( const char *vs, const char *fs )
 	AttachShaderFromFile( &m_fragment, fs, ShaderType::Fragment );
 	Link();
 	Validate();
-}
 
+
+	// Uniforms
+	GLint nUniforms, size, location, maxLen;
+	GLchar * name;
+	GLsizei written;
+	GLenum type;
+
+	glGetProgramiv( m_program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen );
+	glGetProgramiv( m_program, GL_ACTIVE_UNIFORMS, &nUniforms );
+
+	name = new GLchar[maxLen];
+
+	printf( " Location | Name\n" );
+	printf( "------------------------------------------------\n" );
+	for ( int i = 0; i < nUniforms; ++i )
+	{
+		glGetActiveUniform( m_program, i, maxLen, &written, &size, &type, name );
+		location = glGetUniformLocation( m_program, name );
+		printf( " %-8d | %s\n", location, name );
+	}
+
+	delete name;
+
+	// Attributes
+	glGetProgramiv( m_program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLen );
+	glGetProgramiv( m_program, GL_ACTIVE_ATTRIBUTES, &nUniforms );
+
+	name = (GLchar *) malloc( maxLen );
+
+	printf( " Index | Name\n" );
+	printf( "------------------------------------------------\n" );
+	for ( int i = 0; i < nUniforms; i++ )
+	{
+		glGetActiveAttrib( m_program, i, maxLen, &written, &size, &type, name );
+		location = glGetAttribLocation( m_program, name );
+		printf( " %-5d | %s\n", location, name );
+	}
+
+	free( name );
+}
 
 mj::gl::Program::~Program()
 {
@@ -127,4 +166,10 @@ bool mj::gl::Program::FindProgramErrors( GLenum type ) const
 	}
 
 	return false;
+}
+
+void mj::gl::Program::SetUniform( const char *name, const math::mat4 &mat )
+{
+	GLint location = glGetAttribLocation( m_program, name );
+	glUniformMatrix4fv( location, 1, GL_FALSE, &mat[0][0] );
 }

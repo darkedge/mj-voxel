@@ -21,6 +21,5 @@ namespace mj {
 		Transform *m_player = nullptr;
 
 		Vector<Chunk> m_chunks;
-		//std::vector<Chunk> m_chunks;
 	};
 }

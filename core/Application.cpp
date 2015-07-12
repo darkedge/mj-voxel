@@ -1,6 +1,7 @@
 #include "CorePCH.h"
 #include "Application.h"
 #include "World.h"
+#include "Input.h"
 
 //GLFWwindow *g_Window;
 GLFWwindow *mj::Application::s_window = nullptr;
@@ -40,11 +41,67 @@ void bla()
 	mono_jit_cleanup( domain );
 }
 
-void GlfwErrorCallback( int, const char *description )
+/************************************************************************/
+/* GLFW Callbacks                                                       */
+/************************************************************************/
+
+void GlfwErrorCallback( int32, const char *description )
 {
 	fputs( description, stderr );
 	fputs( "\n", stderr );
 }
+
+void GlfwKeyCallBack( GLFWwindow* window, int32 key, int32 scancode, int32 action, int32 mods )
+{
+	if ( key == GLFW_KEY_ESCAPE && action == GLFW_PRESS )
+		glfwSetWindowShouldClose( window, GL_TRUE );
+
+	if ( action == GLFW_PRESS )
+	{
+		mj::Input::SetKey( key, true );
+	}
+	if ( action == GLFW_RELEASE )
+	{
+		mj::Input::SetKey( key, false );
+	}
+}
+
+void GlfwMouseButtonCallback( GLFWwindow *window, int32 button, int32 action, int32 mods )
+{
+	if ( action == GLFW_PRESS )
+	{
+		mj::Input::SetMouseButton( button, true );
+	}
+	if ( action == GLFW_RELEASE )
+	{
+		mj::Input::SetMouseButton( button, false );
+	}
+}
+
+void GlfwScrollCallback( GLFWwindow *window, double xoffset, double yoffset )
+{
+	// TODO: GUI
+}
+
+void GlfwCharCallback( GLFWwindow *window, uint32 codepoint )
+{
+	// TODO: GUI
+}
+
+void GlfwCursorPosCallback( GLFWwindow *window, double xpos, double ypos )
+{
+	mj::Input::SetMousePosition( mj::math::float2( xpos, ypos ) );
+}
+
+void GlfwWindowSizeCallBack( GLFWwindow *window, int32 width, int32 height )
+{
+	mj::Application::SetWidth( width );
+	mj::Application::SetHeight( height );
+}
+
+/************************************************************************/
+/* Application                                                          */
+/************************************************************************/
 
 mj::Application::Application( const char *name /* = "" */, int32 width /* = 1280 */, int32 height /* = 720 */ )
 {
@@ -72,12 +129,12 @@ void mj::Application::Init( const char *name )
 	glfwMakeContextCurrent( s_window );
 
 	// TODO: Callbacks
-	// 	glfwSetKeyCallback(g_Window, GlfwKeyCallBack);
-	// 	glfwSetMouseButtonCallback(g_Window, GlfwMouseButtonCallback);
-	// 	glfwSetScrollCallback(g_Window, GlfwScrollCallback);
-	// 	glfwSetCharCallback(g_Window, GlfwCharCallback);
-	// 	glfwSetCursorPosCallback(g_Window, GlfwCursorPosCallback);
-	// 	glfwSetWindowSizeCallback(g_Window, GlfwWindowSizeCallBack);
+	glfwSetKeyCallback( s_window, GlfwKeyCallBack );
+	glfwSetMouseButtonCallback( s_window, GlfwMouseButtonCallback );
+	glfwSetScrollCallback( s_window, GlfwScrollCallback );
+	glfwSetCharCallback( s_window, GlfwCharCallback );
+	glfwSetCursorPosCallback( s_window, GlfwCursorPosCallback );
+	glfwSetWindowSizeCallback( s_window, GlfwWindowSizeCallBack );
 
 	// Sync to monitor refresh rate
 	glfwSwapInterval( 1 );

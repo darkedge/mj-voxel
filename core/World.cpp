@@ -13,8 +13,9 @@ mj::World::World()
 	{
 		for ( int z = 0; z < 10; z++ )
 		{
-			Chunk &chunk = m_chunks.Add();
-			chunk.m_position = { x, 0, z };
+			//Chunk &chunk = m_chunks.Add();
+			//chunk.m_position = { x, 0, z };
+			m_chunks.Add( Chunk( { x, 0, z } ) );
 		}
 	}
 }

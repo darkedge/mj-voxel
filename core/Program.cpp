@@ -21,13 +21,44 @@ mj::gl::Program::~Program()
 
 bool mj::gl::Program::ReadShaderFile( const char *file, ShaderType type )
 {
-	std::ifstream strm( file, std::ifstream::in );
-	if ( !strm )
+	int32 size = 0;
+#pragma warning(suppress:4996)
+	FILE *f = fopen( file, "rb" );
+	if ( !f )
 	{
-		printf( "File not found: %s\n", file );
-		return;
+		printf( "Could not open file: %s\n", file );
+		return false;
 	}
 
-	//std::ostringstream txt;
+	fseek( f, 0, SEEK_END );
+	size = ftell( f );
+	fseek( f, 0, SEEK_SET );
+	char *str = new char[size + 1];
+	if ( size != fread( str, sizeof( char ), size, f ) )
+	{
+		delete[] str;
+		printf( "Error while reading file: %s\n", file );
+		return false;
+	}
+	fclose( f );
+	str[size] = '\0';
 
+
+	GLuint shader = 0;
+	switch ( type )
+	{
+	case ShaderType::Vertex:
+		shader = glCreateShader( GL_VERTEX_SHADER );
+		break;
+	case ShaderType::Fragment:
+		shader = glCreateShader( GL_FRAGMENT_SHADER );
+		break;
+	default:
+		return false;
+	}
+
+	glShaderSource( shader, 1, (const char **) &str, nullptr );
+	delete[] str;
+
+	return true;
 }

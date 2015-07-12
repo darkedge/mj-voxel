@@ -4,18 +4,15 @@ namespace mj {
 	class Block;
 
 	// TODO: Serializable
-	// This class contains dynamic memory
-	// SO APPLY RULE OF 3/5
 	class Chunk
 	{
 	public:
-		Chunk();
-		Chunk( const Chunk &copy )
-		{
-			*this = copy;
-		}
+		Chunk() = default;
 		Chunk( const math::int3 &position );
-		~Chunk();
+
+		Chunk( const Chunk &other );				// Copy constructor
+		Chunk( Chunk &&other );						// Move constructor
+		~Chunk();									// Destructor
 
 		void CreateMesh();
 		void Render();
@@ -23,9 +20,11 @@ namespace mj {
 		static const int32 CHUNK_SIZE = 16;
 		math::int3 m_position;
 
-		Chunk& operator=(const Chunk &other);
+		Chunk& operator=( const Chunk &other );		// Copy assignment operator
+		Chunk& operator=( Chunk &&other );			// Move assignment operator
 
 	private:
+		void Destroy();
 		void Init();
 
 		Block ***m_blocks = nullptr;

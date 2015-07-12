@@ -2,12 +2,13 @@
 #include "Chunk.h"
 #include "Block.h"
 
-
+#if 0
 mj::Chunk::Chunk() :
 m_position( { 0, 0, 0 } )
 {
 	Init();
 }
+#endif
 
 mj::Chunk::Chunk( const math::int3 &position ) :
 m_position( position )
@@ -15,8 +16,23 @@ m_position( position )
 	Init();
 }
 
+mj::Chunk::Chunk( const Chunk &other )
+{
+	printf( "Cp() " );
+	*this = other;
+}
+
+mj::Chunk::Chunk( Chunk &&other )
+{
+	printf( "Mv() \n" );
+	this->m_position = other.m_position;
+	this->m_blocks = other.m_blocks;
+	other.m_blocks = nullptr;
+}
+
 void mj::Chunk::Init()
 {
+	printf( "C() " );
 	// Create blocks
 	m_blocks = new Block **[CHUNK_SIZE];
 	for ( int32 x = 0; x < CHUNK_SIZE; x++ )
@@ -31,19 +47,32 @@ void mj::Chunk::Init()
 
 mj::Chunk::~Chunk()
 {
+	Destroy();
+}
+
+void mj::Chunk::Destroy()
+{
+	if ( m_blocks )
+	{
+		printf( "Dx+ " );
+	}
+	else
+	{
+		printf( "Dx- " );
+	}
 	// Delete blocks
 	if ( m_blocks )
 	{
 		for ( int32 x = 0; x < CHUNK_SIZE; x++ ) if ( m_blocks[x] )
 		{
-			for ( int32 y = 0; y < CHUNK_SIZE; y++ ) if ( m_blocks[x][y] )
+			for ( int32 y = 0; y < CHUNK_SIZE; y++ )
 			{
 				delete[] m_blocks[x][y];
 			}
 			delete[] m_blocks[x];
 		}
-		delete[] m_blocks;
 	}
+	delete[] m_blocks;
 }
 
 void mj::Chunk::CreateMesh()
@@ -68,10 +97,12 @@ void mj::Chunk::Render()
 
 }
 
-mj::Chunk& mj::Chunk::operator=(const mj::Chunk &other)
+mj::Chunk& mj::Chunk::operator=( const mj::Chunk &other )
 {
 	if ( this != &other )
 	{
+		printf( "Cp= " );
+		this->m_position = other.m_position;
 		m_blocks = new Block **[CHUNK_SIZE];
 		for ( int32 x = 0; x < CHUNK_SIZE; x++ )
 		{
@@ -84,5 +115,18 @@ mj::Chunk& mj::Chunk::operator=(const mj::Chunk &other)
 		}
 	}
 
+	return *this;
+}
+
+mj::Chunk& mj::Chunk::operator=( mj::Chunk &&other )
+{
+	if ( this != &other )
+	{
+		printf( "Mv= " );
+		Destroy();
+		this->m_position = other.m_position;
+		this->m_blocks = other.m_blocks;
+		other.m_blocks = nullptr;
+	}
 	return *this;
 }

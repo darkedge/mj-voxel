@@ -48,7 +48,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>mono-2.0.lib;glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>mono-2.0.lib;glfw3.lib;opengl32.lib;Glu32.lib;User32.lib;Gdi32.lib;Shell32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\Mono\lib;$(SolutionDir)glfw\lib;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -68,7 +68,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>mono-2.0.lib;glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>mono-2.0.lib;glfw3.lib;opengl32.lib;Glu32.lib;User32.lib;Gdi32.lib;Shell32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\Mono\lib;$(SolutionDir)glfw\lib;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -97,6 +97,7 @@
     <ClInclude Include="CorePCH.h" />
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="IntegralTypes.h" />
+    <ClInclude Include="Macro.h" />
     <ClInclude Include="MathUtil.h" />
     <ClInclude Include="MeshManager.h" />
     <ClInclude Include="Program.h" />
@@ -104,6 +105,10 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Voxels.frag" />
+    <None Include="Voxels.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

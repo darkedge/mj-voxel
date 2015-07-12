@@ -2,11 +2,21 @@
 #include "Chunk.h"
 #include "Block.h"
 
-mj::Chunk::Chunk( const math::int3 &position ) :
-m_position( position )
+mj::Chunk::Chunk()
 {
+	//members.m_position = 0;
+	members.m_vertexBuffer = 0;
+	members.m_vertexArray = 0;
+	members.m_indexBuffer = 0;
+	//members.m_numTris = 0;
+}
+
+mj::Chunk::Chunk( const math::int3 &position )
+{
+	members.m_position = position;
 	Init();
 }
+
 #if 0
 mj::Chunk::Chunk( const Chunk &other )
 {
@@ -14,11 +24,10 @@ mj::Chunk::Chunk( const Chunk &other )
 }
 #endif
 
+// TODO: Check if this is the same as default move Ctor
 mj::Chunk::Chunk( Chunk &&other )
 {
-	this->m_position = other.m_position;
-	this->m_blocks = other.m_blocks;
-	other.m_blocks = nullptr;
+	*this = std::forward<Chunk>(other);
 }
 
 void mj::Chunk::Init()
@@ -59,19 +68,22 @@ void mj::Chunk::Destroy()
 	delete[] m_blocks;
 
 	// Delete GL buffer (TODO: RAII buffer class?)
-	glDeleteBuffers( 1, &members.m_vertexArray );
-	glDeleteBuffers( 1, &members.m_indexBuffer );
-	glDeleteVertexArrays( 1, &members.m_vertexArray );
+	GL_TRY( glDeleteBuffers( 1, &members.m_vertexBuffer ) );
+	members.m_vertexBuffer = 0;
+	GL_TRY( glDeleteBuffers( 1, &members.m_indexBuffer ) );
+	members.m_indexBuffer = 0;
+	GL_TRY( glDeleteVertexArrays( 1, &members.m_vertexArray ) );
+	members.m_vertexArray = 0;
 }
 
 void mj::Chunk::CreateMesh()
 {
-	struct Quad
+	struct Triangle
 	{
-		mj::math::int3 a, b, c, d;
+		mj::math::int3 a, b, c;
 	};
 
-	mj::Vector<Quad> quads;
+	mj::Vector<Triangle> triangles;
 
 	for ( int32 d = 0; d < 3; d++ )
 	{
@@ -134,7 +146,8 @@ void mj::Chunk::CreateMesh()
 						x[u] = i;  x[v] = j;
 						math::int3 du = { 0, 0, 0 }; du[u] = w;
 						math::int3 dv = { 0, 0, 0 }; dv[v] = h;
-						quads.Add( { x, x + du, x + du + dv, x + dv } );
+						triangles.Add( { x, x + du, x + du + dv } );
+						triangles.Add( { x + du + dv, x + dv, x } );
 
 						for ( int32 l = 0; l < h; l++ )
 						{
@@ -158,37 +171,37 @@ void mj::Chunk::CreateMesh()
 	}
 
 	// Process quads
-	glGenVertexArrays( 1, &members.m_vertexArray );
-	glBindVertexArray( members.m_vertexArray );
-	glGenBuffers( 1, &members.m_vertexBuffer );
-	glBindBuffer( GL_ARRAY_BUFFER, members.m_vertexBuffer );
-	glBufferData( GL_ARRAY_BUFFER, quads.Size() * sizeof( Quad ), &quads[0], GL_STATIC_DRAW );
-	glVertexAttribPointer( 0, 3, GL_INT, GL_FALSE, 0, nullptr );
-	glEnableVertexAttribArray( 0 );
+	GL_TRY( glGenVertexArrays( 1, &members.m_vertexArray ) );
+	GL_TRY( glBindVertexArray( members.m_vertexArray ) );
+	GL_TRY( glGenBuffers( 1, &members.m_vertexBuffer ) );
+	GL_TRY( glBindBuffer( GL_ARRAY_BUFFER, members.m_vertexBuffer ) );
+	GL_TRY( glBufferData( GL_ARRAY_BUFFER, triangles.Size() * sizeof( Triangle ), &triangles[0], GL_STATIC_DRAW ) );
+	GL_TRY( glVertexAttribIPointer( 0, 3, GL_INT, 0, nullptr ) );
+	GL_TRY( glEnableVertexAttribArray( 0 ) );
 
 	// Index buffer
-	mj::Vector<int32> indices(quads.Size());
-	for ( int32 i = 0; i < quads.Size(); i++ )
+	mj::Vector<int32> indices( triangles.Size() );
+	for ( int32 i = 0; i < triangles.Size(); i++ )
 	{
 		indices[i] = i;
 	}
-	glGenBuffers( 1, &members.m_indexBuffer );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, members.m_indexBuffer );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, indices.Size() * sizeof( int32 ), &indices[0], GL_STATIC_DRAW );
+	GL_TRY( glGenBuffers( 1, &members.m_indexBuffer ) );
+	GL_TRY( glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, members.m_indexBuffer ) );
+	GL_TRY( glBufferData( GL_ELEMENT_ARRAY_BUFFER, indices.Size() * sizeof( int32 ), &indices[0], GL_STATIC_DRAW ) );
 
-	members.m_numQuads = quads.Size();
+	members.m_numTris = triangles.Size();
 
 	// Unbind
-	glBindVertexArray( 0 );
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+	GL_TRY( glBindVertexArray( 0 ) );
+	GL_TRY( glBindBuffer( GL_ARRAY_BUFFER, 0 ) );
+	GL_TRY( glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 ) );
 }
 
 void mj::Chunk::Render()
 {
-	glBindVertexArray( members.m_vertexArray );
-	glDrawArrays( GL_QUADS, 0, members.m_numQuads );
-	glBindVertexArray( 0 );
+	GL_TRY( glBindVertexArray( members.m_vertexArray ) );
+	GL_TRY( glDrawArrays( GL_TRIANGLES, 0, members.m_numTris ) );
+	GL_TRY( glBindVertexArray( 0 ) );
 }
 
 #if 0
@@ -224,7 +237,11 @@ mj::Chunk& mj::Chunk::operator=( mj::Chunk &&other )
 		Destroy();
 		this->members = other.members;
 		this->m_blocks = other.m_blocks;
+
 		other.m_blocks = nullptr;
+		other.members.m_vertexBuffer = 0;
+		other.members.m_vertexArray = 0;
+		other.members.m_indexBuffer = 0;
 	}
 	return *this;
 }

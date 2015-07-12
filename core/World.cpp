@@ -8,7 +8,7 @@ mj::World::World()
 {
 	m_player = new mj::Transform();
 	m_camera = new mj::gl::Camera();
-	m_program = new mj::gl::Program( "", "" );
+	m_program = new mj::gl::Program( "Voxels.vert", "Voxels.frag" );
 
 	// Create world
 	for ( int x = 0; x < 1; x++ )

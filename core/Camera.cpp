@@ -22,15 +22,15 @@ void mj::gl::Camera::Bind()
 	else
 	{
 		// Render to screen
-		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-		glViewport( 0, 0, mj::Application::GetWidth(), mj::Application::GetHeight() );
+		GL_TRY( glBindFramebuffer( GL_FRAMEBUFFER, 0 ) );
+		GL_TRY( glViewport( 0, 0, mj::Application::GetWidth(), mj::Application::GetHeight() ) );
 	}
 
 	// TODO: Check clear flags
 	switch ( m_clearFlags )
 	{
 	default:
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		GL_TRY( glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ) );
 		break;
 	}
 }

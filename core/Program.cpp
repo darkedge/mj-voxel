@@ -2,24 +2,25 @@
 #include "Program.h"
 
 
-mj::gl::Program::Program(const char *vs, const char *fs)
+mj::gl::Program::Program( const char *vs, const char *fs )
 {
-	handle = glCreateProgram();
+	m_program = glCreateProgram();
 
-	
+	AttachShaderFromFile( &m_vertex, vs, ShaderType::Vertex );
+	AttachShaderFromFile( &m_fragment, fs, ShaderType::Fragment );
+	Link();
+	Validate();
 }
 
 
 mj::gl::Program::~Program()
 {
-	if ( handle )
-	{
-		// TODO: Does this delete shaders?
-		glDeleteProgram( handle );
-	}
+	glDeleteShader( m_vertex );
+	glDeleteShader( m_fragment );
+	glDeleteProgram( m_program );
 }
 
-bool mj::gl::Program::ReadShaderFile( const char *file, ShaderType type )
+void mj::gl::Program::AttachShaderFromFile( GLuint *shader, const char *file, ShaderType type )
 {
 	int32 size = 0;
 #pragma warning(suppress:4996)
@@ -27,7 +28,7 @@ bool mj::gl::Program::ReadShaderFile( const char *file, ShaderType type )
 	if ( !f )
 	{
 		printf( "Could not open file: %s\n", file );
-		return false;
+		return;
 	}
 
 	fseek( f, 0, SEEK_END );
@@ -38,27 +39,92 @@ bool mj::gl::Program::ReadShaderFile( const char *file, ShaderType type )
 	{
 		delete[] str;
 		printf( "Error while reading file: %s\n", file );
-		return false;
+		return;
 	}
 	fclose( f );
 	str[size] = '\0';
 
 
-	GLuint shader = 0;
 	switch ( type )
 	{
 	case ShaderType::Vertex:
-		shader = glCreateShader( GL_VERTEX_SHADER );
+		*shader = glCreateShader( GL_VERTEX_SHADER );
 		break;
 	case ShaderType::Fragment:
-		shader = glCreateShader( GL_FRAGMENT_SHADER );
+		*shader = glCreateShader( GL_FRAGMENT_SHADER );
 		break;
 	default:
-		return false;
+		printf( "Unsupported shader type!" );
+		return;
 	}
 
-	glShaderSource( shader, 1, (const char **) &str, nullptr );
+	glShaderSource( *shader, 1, (const char **) &str, nullptr );
 	delete[] str;
 
-	return true;
+	GL_TRY( glCompileShader( *shader ) );
+
+	// Check compilation log
+	GLint status;
+	GL_TRY( glGetShaderiv( *shader, GL_COMPILE_STATUS, &status ) );
+	bool success = ( status == GL_TRUE );
+	if ( success )
+	{
+		GL_TRY( glAttachShader( m_program, *shader ) );
+	}
+	else
+	{
+		GLint length = 0;
+		GL_TRY( glGetShaderiv( *shader, GL_INFO_LOG_LENGTH, &length ) );
+		if ( length > 1 )
+		{
+			char *c_log = new char[length];
+			GL_TRY( glGetShaderInfoLog( *shader, length, nullptr, c_log ) );
+			printf( "%s\n", c_log );
+			delete[] c_log;
+		}
+	}
+}
+
+void mj::gl::Program::Bind() const
+{
+	GL_TRY( glUseProgram( m_program ) );
+}
+
+void mj::gl::Program::Link() const
+{
+	assert( m_program );
+	GL_TRY( glLinkProgram( m_program ) );
+	FindProgramErrors( GL_LINK_STATUS );
+}
+
+void mj::gl::Program::Validate() const
+{
+	assert( m_program );
+	GL_TRY( glValidateProgram( m_program ) );
+	FindProgramErrors( GL_VALIDATE_STATUS );
+}
+
+// Returns true if errors were found
+bool mj::gl::Program::FindProgramErrors( GLenum type ) const
+{
+	GLint status;
+	GL_TRY( glGetProgramiv( m_program, type, &status ) );
+	bool success = ( status == GL_TRUE );
+	if ( !success )
+	{
+		GLint length = 0;
+		GL_TRY( glGetProgramiv( m_program, GL_INFO_LOG_LENGTH, &length ) );
+
+		if ( length > 0 )
+		{
+			char *c_log = new char[length];
+			GL_TRY( glGetProgramInfoLog( m_program, length, nullptr, c_log ) );
+			printf( "%s\n", c_log );
+			delete[] c_log;
+		}
+
+		return true;
+	}
+
+	return false;
 }

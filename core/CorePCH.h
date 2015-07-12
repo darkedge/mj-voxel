@@ -1,6 +1,10 @@
 // glad (OpenGL binding)
 #include <glad/glad.h>
 
+// used for gluErrorString
+// requires Glu32.lib
+#include <gl/GLU.h>
+
 // C++ Standard Library
 #include <cassert>
 #include <cstdlib>
@@ -21,3 +25,4 @@
 #include "IntegralTypes.h"
 #include "MathUtil.h"
 #include "Vector.h"
+#include "Macro.h"

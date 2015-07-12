@@ -14,6 +14,10 @@ namespace mj {
 		static int32 GetHeight() { return s_height; }
 		static GLFWwindow* GetWindow() { return s_window; }
 
+		// TODO: Notify camera, change viewport?
+		static void SetWidth( int32 width ) { s_width = width; }
+		static void SetHeight( int32 height ) { s_height = height; }
+
 	private:
 		static int32 s_width, s_height;
 		static GLFWwindow *s_window;

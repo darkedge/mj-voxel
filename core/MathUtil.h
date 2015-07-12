@@ -13,7 +13,7 @@ template <typename T> struct vec4_t;
 template<typename T>
 struct vec2_t {
 	vec2_t() {}
-	vec2_t( T s ) : x( s ), y( s ) {}
+	explicit vec2_t( T s ) : x( s ), y( s ) {}
 	vec2_t( T x, T y ) : x( x ), y( y ) {}
 	int32 Size() const {
 		return 2;
@@ -40,7 +40,7 @@ struct vec2_t {
 template<typename T>
 struct vec3_t {
 	vec3_t() {}
-	vec3_t( T s ) : x( s ), y( s ), z( s ) {}
+	explicit vec3_t( T s ) : x( s ), y( s ), z( s ) {}
 	vec3_t( T x, T y, T z ) : x( x ), y( y ), z( z ) {}
 	explicit vec3_t( vec4_t<T> xyz ) : x( xyz.x ), y( xyz.y ), z( xyz.z ) {}
 	int32 Size() const {
@@ -127,8 +127,8 @@ vec3_t<T> operator-( vec3_t<T> const &v1, vec3_t<T> const &v2 ) {
 template<typename T>
 struct vec4_t {
 	vec4_t() {}
-	vec4_t( T s ) : x( s ), y( s ), z( s ), w( s ) {}
-	vec4_t( vec3_t<T> xyz, T w ) : x( xyz.x ), y( xyz.y ), z( xyz.z ), w( w ) {}
+	explicit vec4_t( T s ) : x( s ), y( s ), z( s ), w( s ) {}
+	explicit vec4_t( vec3_t<T> xyz, T w ) : x( xyz.x ), y( xyz.y ), z( xyz.z ), w( w ) {}
 	vec4_t( T x, T y, T z, T w ) : x( x ), y( y ), z( z ), w( w ) {}
 	int32 Size() const {
 		return 4;

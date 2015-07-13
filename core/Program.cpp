@@ -170,6 +170,8 @@ bool mj::gl::Program::FindProgramErrors( GLenum type ) const
 
 void mj::gl::Program::SetUniform( const char *name, const math::mat4 &mat )
 {
+	GL_FLUSH_ERRORS();
 	GLint location = glGetAttribLocation( m_program, name );
-	glUniformMatrix4fv( location, 1, GL_FALSE, &mat[0][0] );
+	GL_FLUSH_ERRORS();
+	GL_TRY( glUniformMatrix4fv( location, 1, GL_FALSE, &mat[0][0] ) );
 }

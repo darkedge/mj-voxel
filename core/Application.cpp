@@ -1,4 +1,4 @@
-#include "CorePCH.h"
+﻿#include "CorePCH.h"
 #include "Application.h"
 #include "World.h"
 #include "Input.h"
@@ -26,7 +26,7 @@ void bla()
 
 	// Get the constructor of the class.
 	MonoMethod *pConstructorMethod = mono_class_get_method_from_name_flags( pClass,
-																			".ctor", -1, 0x0800 ); // METHOD_ATTRIBUTE_SPECIAL_NAME
+		".ctor", -1, 0x0800 ); // METHOD_ATTRIBUTE_SPECIAL_NAME
 
 	// Create a new instance of the class.
 	MonoObject *pObject = mono_object_new( domain, pClass );
@@ -39,6 +39,16 @@ void bla()
 	mono_runtime_invoke( pConstructorMethod, pObject, nullptr, &pException );
 
 	mono_jit_cleanup( domain );
+}
+
+/************************************************************************/
+/* OpenGL Callbacks                                                     */
+/************************************************************************/
+
+void CALLBACK debugCallbackARB( GLenum source, GLenum type, GLuint id, GLenum severity,
+	GLsizei length, const GLchar *message, GLvoid *userParam )
+{
+	printf( "%s\n", message );
 }
 
 /************************************************************************/
@@ -90,7 +100,7 @@ void GlfwCharCallback( GLFWwindow *window, uint32 codepoint )
 
 void GlfwCursorPosCallback( GLFWwindow *window, double xpos, double ypos )
 {
-	mj::Input::SetMousePosition( mj::math::float2( xpos, ypos ) );
+	mj::Input::SetMousePosition( mj::math::float2( (float) xpos, (float) ypos ) );
 }
 
 void GlfwWindowSizeCallBack( GLFWwindow *window, int32 width, int32 height )
@@ -121,9 +131,6 @@ void mj::Application::Init( const char *name )
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 4 );
 	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 5 );
 	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
-#ifdef _DEBUG
-	glfwWindowHint( GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE );
-#endif
 
 	s_window = glfwCreateWindow( s_width, s_height, name, nullptr, nullptr );
 	glfwMakeContextCurrent( s_window );
@@ -156,6 +163,11 @@ void mj::Application::Init( const char *name )
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	glDepthFunc( GL_LEQUAL );
 
+	// https://www.opengl.org/wiki/Debug_Output
+	glDebugMessageCallback( (GLDEBUGPROC) debugCallbackARB, nullptr );
+	glEnable( GL_DEBUG_OUTPUT );
+	glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+
 	world = new World();
 }
 
@@ -171,7 +183,7 @@ void mj::Application::Run()
 	while ( !glfwWindowShouldClose( s_window ) )
 	{
 		double now = glfwGetTime();
-		dt = (float)( now - lastTime );
+		dt = (float) ( now - lastTime );
 		lastTime = now;
 
 		glfwPollEvents();

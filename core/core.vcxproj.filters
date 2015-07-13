@@ -15,6 +15,7 @@
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Macro.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GBuffer.h" />

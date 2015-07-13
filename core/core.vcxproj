@@ -48,7 +48,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>mono-2.0.lib;glfw3.lib;opengl32.lib;Glu32.lib;User32.lib;Gdi32.lib;Shell32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>mono-2.0.lib;glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\Mono\lib;$(SolutionDir)glfw\lib;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -68,7 +68,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>mono-2.0.lib;glfw3.lib;opengl32.lib;Glu32.lib;User32.lib;Gdi32.lib;Shell32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>mono-2.0.lib;glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\Mono\lib;$(SolutionDir)glfw\lib;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -83,6 +83,7 @@
     <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="MeshManager.cpp" />

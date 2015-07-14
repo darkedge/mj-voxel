@@ -8,7 +8,7 @@ namespace mj {
 	{
 	public:
 		Chunk();
-		Chunk( const math::int3 &position );
+		Chunk( const math::float3 &position );
 
 		Chunk( const Chunk &other ) = delete;				// Copy constructor
 		Chunk( Chunk &&other );						// Move constructor
@@ -25,6 +25,7 @@ namespace mj {
 		Chunk& operator=( Chunk &&other );			// Move assignment operator
 
 		Block &GetBlock( const mj::math::int3 &idx );
+		math::float3 GetPosition() const { return members.m_position; }
 
 	private:
 		void Destroy();
@@ -33,7 +34,7 @@ namespace mj {
 		Block ***m_blocks = nullptr;
 		struct 
 		{
-			math::int3 m_position;
+			math::float3 m_position;
 			GLuint m_vertexBuffer;
 			GLuint m_vertexArray;
 			GLuint m_indexBuffer;

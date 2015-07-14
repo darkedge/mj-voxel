@@ -7,6 +7,7 @@
 GLFWwindow *mj::Application::s_window = nullptr;
 int32 mj::Application::s_height = -1;
 int32 mj::Application::s_width = -1;
+float mj::Application::s_deltaTime = 0.0f;
 
 void bla()
 {
@@ -178,17 +179,18 @@ mj::Application::~Application()
 
 void mj::Application::Run()
 {
-	float dt = 0.0f;
 	double lastTime = glfwGetTime();
 	while ( !glfwWindowShouldClose( s_window ) )
 	{
 		double now = glfwGetTime();
-		dt = (float) ( now - lastTime );
+		SetDeltaTime( (float) ( now - lastTime ) );
 		lastTime = now;
 
 		glfwPollEvents();
+		mj::Input::Tick();
 
 		world->Tick();
+		mj::Input::PostTick();
 		glfwSwapBuffers( s_window );
 	}
 

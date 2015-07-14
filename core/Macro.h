@@ -45,5 +45,5 @@ const char *mjGlErrorString( GLenum err );
 
 #else
 #define GL_TRY(expr) expr
-#define GL_FLUSH_ERRORS
+#define GL_FLUSH_ERRORS()
 #endif

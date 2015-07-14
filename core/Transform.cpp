@@ -1,6 +1,12 @@
 #include "CorePCH.h"
 #include "Transform.h"
 
+mj::Transform::Transform() :
+position( 0, 0, 0 ),
+rotation( 0, 0, 1, 0 ),
+localMatrix( 1 )
+{
+}
 
 void mj::Transform::SetPosition( float x, float y, float z )
 {
@@ -13,7 +19,7 @@ void mj::Transform::SetPosition( const mj::math::float3 &position )
 	matrixIsDirty = true;
 }
 
-void mj::Transform::SetRotation( const mj::math::Quaternion &orientation )
+void mj::Transform::SetRotation( const mj::math::quat &orientation )
 {
 	this->rotation = orientation;
 	matrixIsDirty = true;
@@ -28,7 +34,7 @@ void mj::Transform::SetRotation( float pitch, float yaw, float roll )
 // Degrees
 void mj::Transform::SetRotation( const mj::math::float3 &degrees )
 {
-	SetRotation( mj::math::Quaternion( mj::math::Deg2Rad( degrees ) ) );
+	SetRotation( mj::math::quat( mj::math::Deg2Rad( degrees ) ) );
 }
 
 mj::math::mat4 mj::Transform::GetLocalToWorldMatrix() const

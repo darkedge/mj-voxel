@@ -15,7 +15,10 @@ namespace mj {
 		~World();
 
 		void Tick();
+
 	private:
+		void MovePlayer();
+
 		gl::Camera *m_camera = nullptr;
 		gl::Program *m_program = nullptr;
 		Transform *m_player = nullptr;

@@ -1,8 +1,11 @@
 #pragma once
 
 namespace mj {
-class Transform {
+class Transform
+{
 public:
+	Transform();
+
 	// Transforms position from local space to world space.
 	math::float3 TransformPoint( const math::float3 &point ) const;
 	// Transforms direction from local space to world space.
@@ -18,17 +21,20 @@ public:
 	// Returns the position of the transform relative to the parent transform.
 	math::float3 GetPosition() const { return position; }
 	// Returns the rotation of the transform relative to the parent transform's rotation.
-	math::Quaternion GetRotation() const { return rotation; }
+	math::quat GetRotation() const { return rotation; }
 
-	math::float3 Forward() const {
-		return rotation * mj::math::kAxisZ3f;
+	math::float3 Forward() const
+	{
+		return rotation * -mj::math::kAxisZ3f;
 	}
 
-	math::float3 Up() const {
+	math::float3 Up() const
+	{
 		return rotation * mj::math::kAxisY3f;
 	}
 
-	math::float3 Right() const {
+	math::float3 Right() const
+	{
 		return rotation * mj::math::kAxisX3f;
 	}
 
@@ -39,11 +45,11 @@ public:
 	// Sets the rotation of the transform in world space.
 	void SetRotation( float pitch, float yaw, float roll );
 	void SetRotation( const math::float3 &degrees );
-	void SetRotation( const math::Quaternion &_orientation );
+	void SetRotation( const math::quat &_orientation );
 
 private:
 	math::float3 position;
-	math::Quaternion rotation;
+	math::quat rotation;
 
 	mutable bool matrixIsDirty = true;
 	mutable math::mat4 localMatrix;

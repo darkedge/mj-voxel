@@ -11,7 +11,7 @@ mj::Chunk::Chunk()
 	//members.m_numTris = 0;
 }
 
-mj::Chunk::Chunk( const math::int3 &position )
+mj::Chunk::Chunk( const math::float3 &position )
 {
 	members.m_position = position;
 	Init();
@@ -27,7 +27,7 @@ mj::Chunk::Chunk( const Chunk &other )
 // TODO: Check if this is the same as default move Ctor
 mj::Chunk::Chunk( Chunk &&other )
 {
-	*this = std::forward<Chunk>(other);
+	*this = std::forward<Chunk>( other );
 }
 
 void mj::Chunk::Init()
@@ -80,7 +80,7 @@ void mj::Chunk::CreateMesh()
 {
 	struct Triangle
 	{
-		mj::math::int3 a, b, c;
+		mj::math::float3 a, b, c;
 	};
 
 	mj::Vector<Triangle> triangles;
@@ -144,10 +144,10 @@ void mj::Chunk::CreateMesh()
 						}
 
 						x[u] = i;  x[v] = j;
-						math::int3 du = { 0, 0, 0 }; du[u] = w;
-						math::int3 dv = { 0, 0, 0 }; dv[v] = h;
-						triangles.Add( { x, x + du, x + du + dv } );
-						triangles.Add( { x + du + dv, x + dv, x } );
+						math::float3 du = { 0, 0, 0 }; du[u] = w;
+						math::float3 dv = { 0, 0, 0 }; dv[v] = h;
+						triangles.Add( Triangle{ ( math::float3 )x, ( math::float3 )x + du, ( math::float3 )x + du + dv } );
+						triangles.Add( { ( math::float3 )x + du + dv, ( math::float3 )x + dv, x } );
 
 						for ( int32 l = 0; l < h; l++ )
 						{
@@ -170,13 +170,44 @@ void mj::Chunk::CreateMesh()
 		}
 	}
 
+#if 0
+	math::float3 v[] = {
+		{ 0, 0, 0 },
+		{ 0, 0, 1 },
+		{ 0, 1, 0 },
+		{ 0, 1, 1 },
+		{ 1, 0, 0 },
+		{ 1, 0, 1 },
+		{ 1, 1, 0 },
+		{ 1, 1, 1 },
+	};
+
+	triangles.Clear();
+
+	// Front Right Back Left Up Down
+	triangles.Add( {
+		{ v[1], v[5], v[7] },
+		{ v[7], v[3], v[1] },
+		{ v[5], v[4], v[6] },
+		{ v[6], v[7], v[5] },
+		{ v[4], v[0], v[2] },
+		{ v[2], v[6], v[4] },
+		{ v[0], v[1], v[3] },
+		{ v[3], v[2], v[0] },
+		{ v[3], v[7], v[6] },
+		{ v[6], v[2], v[3] },
+		{ v[0], v[4], v[5] },
+		{ v[5], v[1], v[0] },
+	} );
+#endif
+
 	// Process quads
 	GL_TRY( glGenVertexArrays( 1, &members.m_vertexArray ) );
 	GL_TRY( glBindVertexArray( members.m_vertexArray ) );
 	GL_TRY( glGenBuffers( 1, &members.m_vertexBuffer ) );
 	GL_TRY( glBindBuffer( GL_ARRAY_BUFFER, members.m_vertexBuffer ) );
 	GL_TRY( glBufferData( GL_ARRAY_BUFFER, triangles.Size() * sizeof( Triangle ), &triangles[0], GL_STATIC_DRAW ) );
-	GL_TRY( glVertexAttribIPointer( 0, 3, GL_INT, 0, nullptr ) );
+	GL_TRY( glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 0, nullptr ) );
 	GL_TRY( glEnableVertexAttribArray( 0 ) );
 
 	// Index buffer
@@ -200,7 +231,7 @@ void mj::Chunk::CreateMesh()
 void mj::Chunk::Render()
 {
 	GL_TRY( glBindVertexArray( members.m_vertexArray ) );
-	GL_TRY( glDrawArrays( GL_TRIANGLES, 0, members.m_numTris ) );
+	GL_TRY( glDrawArrays( GL_TRIANGLES, 0, 3 * members.m_numTris ) );
 	GL_TRY( glBindVertexArray( 0 ) );
 }
 

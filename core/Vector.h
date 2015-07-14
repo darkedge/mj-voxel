@@ -16,6 +16,7 @@ namespace mj {
 
 		void Resize( int32 size );
 		int32 Size() const;
+		void Clear();
 
 		const T& operator[]( int32 idx ) const;
 		T& operator[]( int32 idx );
@@ -129,6 +130,15 @@ namespace mj {
 		m_size = size;
 	}
 
+	template<class T>
+	void Vector<T>::Clear()
+	{
+		delete[] m_ptr;
+		m_ptr = nullptr;
+		m_size = 0;
+		m_alloc = 0;
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 
 	template<class T>
@@ -176,7 +186,7 @@ namespace mj {
 	template<class T>
 	T& Vector<T>::operator[]( int32 idx )
 	{
-		assert( idx >= 0 && idx < m_size );
+		assert( m_ptr && idx >= 0 && idx < m_size );
 		return m_ptr[idx];
 	}
 } // namespace mj

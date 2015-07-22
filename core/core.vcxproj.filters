@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GBuffer.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
@@ -16,6 +15,7 @@
     <ClCompile Include="MathUtil.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Macro.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GBuffer.h" />
@@ -34,10 +34,22 @@
     <ClInclude Include="Program.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="State.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Reference.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="Table.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
       <UniqueIdentifier>{386dc69e-3b33-4534-9788-4174228057b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua">
+      <UniqueIdentifier>{8034c934-df3f-4f1f-a919-8702c4c80efd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +58,9 @@
     </None>
     <None Include="Voxels.vert">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="HelloWorld.lua">
+      <Filter>Lua</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -5,10 +5,14 @@
 #include <cassert>
 #include <cstdlib>
 #include <utility>
+#include <memory>
 
 // STL Containers (FIXME: Do not use these)
 //#include <fstream>
 //#include <vector>
+
+// Lua
+#include <lua.hpp>
 
 // Mono
 #include <mono/jit/jit.h>

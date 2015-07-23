@@ -1,3 +1,7 @@
+#pragma warning(disable:4055) // 'type cast' : from data pointer 'void *' to function pointer
+#pragma warning(disable:4054) // 'type cast' : from function pointer 'FARPROC' to data pointer 'void *'
+#pragma warning(disable:4127) // conditional expression is constant
+
 #include <stdio.h>
 #include <string.h>
 #include <glad/glad.h>

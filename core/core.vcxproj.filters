@@ -43,6 +43,7 @@
     <ClInclude Include="Table.h">
       <Filter>Lua</Filter>
     </ClInclude>
+    <ClInclude Include="Name.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

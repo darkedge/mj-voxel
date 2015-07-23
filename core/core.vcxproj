@@ -41,9 +41,9 @@
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);C:\Program Files %28x86%29\Mono\include\mono-2.0;$(SolutionDir)glfw\include;$(SolutionDir)lua\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -57,11 +57,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);C:\Program Files %28x86%29\Mono\include\mono-2.0;$(SolutionDir)glfw\include;$(SolutionDir)lua\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -101,6 +101,7 @@
     <ClInclude Include="GBuffer.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="IntegralTypes.h" />
+    <ClInclude Include="Name.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="Macro.h" />
     <ClInclude Include="MathUtil.h" />

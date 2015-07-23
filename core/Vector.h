@@ -10,6 +10,7 @@ namespace mj {
 		~Vector();
 
 		T& Add(); // Adds one element and returns a reference to it.
+		T& Add( const T &element ); // Adds one element and returns a reference to it.
 		T* Add( const T* ptr, int32 size ); // Adds an array of elements. Returns a pointer to the first added element.
 		T& Add( T &&element ); // Adds an element using move semantics.
 		T* Add( std::initializer_list<T> l );
@@ -69,12 +70,25 @@ namespace mj {
 
 	//////////////////////////////////////////////////////////////////////////
 
+	// Add default constructed object and return reference
 	template<class T>
 	T& Vector<T>::Add()
 	{
 		return *Add( nullptr, 1 );
 	}
 
+	// Add a copy of an element
+	template<class T>
+	T& Vector<T>::Add( const T &element )
+	{
+		int32 oldSize = m_size;
+		Resize( m_size + 1 ); // changes m_size
+		T &dst = *( m_ptr + oldSize );
+		dst = element;
+		return dst;
+	}
+
+	// Add by copying an array
 	template<class T>
 	T* Vector<T>::Add( const T* src, int32 size )
 	{
@@ -92,6 +106,7 @@ namespace mj {
 		return dst;
 	}
 
+	// Add by moving
 	template<class T>
 	T& Vector<T>::Add( T &&element )
 	{
@@ -102,6 +117,7 @@ namespace mj {
 		return dst;
 	}
 
+	// Add using initializer list
 	template<class T>
 	T* Vector<T>::Add( std::initializer_list<T> l )
 	{
@@ -119,6 +135,7 @@ namespace mj {
 
 	//////////////////////////////////////////////////////////////////////////
 
+	// Checks if extra space needs to be allocated in order to contain size elements.
 	template<class T>
 	void Vector<T>::Resize( int32 size )
 	{

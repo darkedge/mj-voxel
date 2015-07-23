@@ -41,12 +41,14 @@ void TestLua()
 {
 	mj::lua::State state;
 	state.LoadFile( "HelloWorld.lua" );
-	printf( "%d\n", (int64)state["foo"] );
-	state["foo"].Print();
-	state["foo"] = 5;
-	auto ref = state["foo"];
-	ref = ref = "hoi";
+	//printf( "%d\n", (int64)state["foo"] );
+	//state["foo"].Print();
+	//state["foo"] = 5;
+	auto ref = state["bar"];
+	state["one"]["two"]["three"] = "four";
 	ref.Print();
+	//ref = ref = "hoi";
+	//ref.Print();
 	stackDump( state );
 }
 

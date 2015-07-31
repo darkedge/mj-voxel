@@ -31,9 +31,9 @@ namespace mj {
 		void ReallocRound( int32 size );
 		void Realloc( int32 size );
 
-		T *m_ptr;
-		int32 m_size;
-		int32 m_alloc;
+		T *m_ptr = nullptr;
+		int32 m_size = -1;
+		int32 m_alloc = -1;
 	};
 
 	//////////////////////////////////////////////////////////////////////////

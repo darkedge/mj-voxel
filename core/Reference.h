@@ -174,7 +174,8 @@ public:
 	{
 		char str[32];
 		sprintf( str, "%d", index );
-		Name name( { m_name, ".", str } );
+		//Name name( { m_name, ".", str } ); // Equals Name name(Name { m_name, ".", str } );
+		Name name{ m_name, ".", str };
 		_check_create_table();
 		Getter getter = [this, index]() {
 			lua_pushinteger( m_l, index );
@@ -191,7 +192,8 @@ public:
 
 	Reference operator[]( const char *str )
 	{
-		Name name( { m_name, ".", str } );
+		//Name name( { m_name, ".", str } );
+		Name name{ m_name, ".", str };
 		_check_create_table();
 		Getter getter = [this, str]() {
 			lua_getfield( m_l, -1, str );

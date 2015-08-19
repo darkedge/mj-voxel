@@ -3,3 +3,4 @@ RenderTexture calls glBindFrameBuffer and glViewport
 Display options (including borderless window)
 Typedef const char * to something meaningful
 Command buffer?
+Research LuaJIT

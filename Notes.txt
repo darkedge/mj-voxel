@@ -3,3 +3,22 @@ RenderTexture calls glBindFrameBuffer and glViewport
 Display options (including borderless window)
 Typedef const char * to something meaningful
 Command buffer?
+
+- Traverse to current element
+	- for all funcs in traversal, execute
+		(these are simply get functions)
+- execute _get function (put it on the stack)
+	- for globals, this is lua_getglobal
+	- otherwise, custom
+- if functor, call it(1), null it
+- convert from stack to value
+- clear stack
+- return value
+
+global Reference has no traversal stack, uses lua_getglobal and lua_setglobal
+
+for [] operator:
+create copy of traversal stack
+put current get in copy
+create table get and set functions
+create table reference

@@ -22,3 +22,5 @@ create copy of traversal stack
 put current get in copy
 create table get and set functions
 create table reference
+
+Research LuaJIT

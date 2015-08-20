@@ -11,15 +11,6 @@
 // Lua
 #include <lua.hpp>
 
-// Mono
-#pragma warning(push)
-#pragma warning(disable:4510) // default constructor could not be generated
-#pragma warning(disable:4512) // assignment operator could not be generated
-#pragma warning(disable:4610) // struct can never be instantiated - user defined constructor required
-#include <mono/jit/jit.h>
-#include <mono/metadata/assembly.h>
-#pragma warning(pop)
-
 // GLFW
 #include <GLFW/glfw3.h>
 

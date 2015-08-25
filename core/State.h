@@ -36,10 +36,10 @@ public:
 		vfprintf( stderr, fmt, argp );
 		va_end( argp );
 		lua_close( L );
-		exit( EXIT_FAILURE );
+		//exit( EXIT_FAILURE );
 	}
 
-	void LoadFile( const char *path )
+	bool LoadFile( const char *path )
 	{
 		// luaL_loadfile loads the file
 		// lua_pcall runs it
@@ -47,7 +47,11 @@ public:
 		{
 			error( m_l, "cannot run configuration file: %s",
 				lua_tostring( m_l, -1 ) );
+			m_l = nullptr;
+
+			return false;
 		}
+		return true;
 	}
 
 	operator lua_State*( )

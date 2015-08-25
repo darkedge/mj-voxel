@@ -152,7 +152,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)glfw\x64;$(SolutionDir)lua\x64;</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>call "$(ProjectDir)post-build.bat" $(Configuration) $(Platform) "$(SolutionDir)" "$(TargetDir)"</Command>
+      <Command>call "$(ProjectDir)post-build.bat" $(Configuration) $(Platform) "$(SolutionDir)" "$(ProjectDir)" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

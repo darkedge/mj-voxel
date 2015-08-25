@@ -6,7 +6,8 @@ REM DO NOT INSERT SPACES
 SET Configuration=%1
 SET Platform=%2
 SET SolutionDir=%~3
-SET TargetDir=%~4
+SET ProjectDir=%~4
+SET TargetDir=%~5
 
 REM $(SolutionDir) and $(TargetDir) have a trailing backslash
 REM and are contained in quotes
@@ -18,6 +19,7 @@ REM ~x is the extension
 REM ~t is the timestamp
 REM ~z is the size
 
+REM Copy DLL's
 IF "%Configuration%" == "Debug" (
 	IF "%Platform%" == "Win32" (
 		XCOPY /Y "%SolutionDir%glfw\x86\glfw3.dll" %TargetDir%
@@ -41,3 +43,8 @@ IF "%Configuration%" == "Debug" (
 ) ELSE (
 	ECHO Unknown configuration!
 )
+
+REM Copy Lua and shader files
+XCOPY /Y "%ProjectDir%*.lua" %TargetDir%
+XCOPY /Y "%ProjectDir%*.frag" %TargetDir%
+XCOPY /Y "%ProjectDir%*.vert" %TargetDir%

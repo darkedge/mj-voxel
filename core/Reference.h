@@ -4,33 +4,6 @@
 namespace mj {
 namespace lua {
 
-
-#if 0
-// Helper functions for tables
-void GetField(lua_State *L, lua_Integer i)
-{
-	// Assume table is pushed on the stack
-	lua_pushinteger( L, i ); // push index on the stack
-	lua_gettable( L, -2 ); // pop index, push table[i] on the stack
-}
-
-void GetField( lua_State *L, const char *name )
-{
-	// Assume table is pushed on the stack
-	lua_getfield( L, -2, name ); // push table[name] on the stack
-}
-
-void SetField( lua_State *L, lua_Integer i )
-{
-
-}
-
-void SetField( lua_State *L, const char *name )
-{
-
-}
-#endif
-
 /************************************************************************/
 /* Reference                                                            */
 /************************************************************************/
@@ -43,23 +16,12 @@ public:
 	// we need a way to get the referenced value back.
 	// We store a sequence of function calls to
 	// get the value on the stack.
-	typedef std::function<void()> Getter;
-
-	// We use the getter in order to set a value
-	typedef std::function<void( Getter )> Setter;
 
 	// Creates a reference for a global object.
-	Reference( lua_State *l, const char *name )
-		: m_l( l ), m_name( Name( name ) )
-	{
-		m_getter = [this, name]() {
-			lua_getglobal( m_l, name );
-		};
-		m_setter = [this, name]( Getter getter ) {
-			getter();
-			lua_setglobal( m_l, name );
-		};
-	}
+	Reference( lua_State *l, const char *name ) :
+		m_L( l ),
+		m_Name( Name( name ) ),
+		m_GetSet(GetSet::EType::Global, l, name) {}
 
 	// Creates a reference for a nested object.
 	Reference( lua_State *l, const char *name, Reference *bla, Getter getter, Setter setter )
@@ -79,8 +41,12 @@ public:
 	void _check_create_table() const
 	{
 		_traverse();
-		m_getter();
-		if ( lua_istable( m_l, -1 ) == 0 )
+		m_getter(); // Put reference on the stack
+		if ( lua_istable( m_l, -1 ) )
+		{
+			lua_pop( m_l, 1 );
+		}
+		else
 		{
 			// not table
 			lua_pop( m_l, 1 ); // Pop table
@@ -88,10 +54,6 @@ public:
 				lua_newtable( m_l );
 			};
 			m_setter( put );
-		}
-		else
-		{
-			lua_pop( m_l, 1 );
 		}
 	}
 
@@ -174,7 +136,6 @@ public:
 	{
 		char str[32];
 		sprintf( str, "%d", index );
-		//Name name( { m_name, ".", str } ); // Equals Name name(Name { m_name, ".", str } );
 		Name name{ m_name, ".", str };
 		_check_create_table();
 		Getter getter = [this, index]() {
@@ -192,7 +153,6 @@ public:
 
 	Reference operator[]( const char *str )
 	{
-		//Name name( { m_name, ".", str } );
 		Name name{ m_name, ".", str };
 		_check_create_table();
 		Getter getter = [this, str]() {
@@ -209,16 +169,85 @@ public:
 	}
 
 private:
+
+	class Getter {
+	public:
+		Getter(lua_State *state, const char *str) : m_State(state), m_Str(str) {}
+		Getter(lua_State *state, lua_Integer index) : m_State(state), m_Idx(index) {}
+
+		void Get() {
+			if(m_Str) {
+				// Table
+				lua_getfield( m_State, -1, m_Str );
+			} else {
+				lua_pushinteger( m_State, m_Idx );
+				lua_gettable( m_State, -2 );
+			}
+		}
+	};
+
+	// TODO
+	class GetSet {
+	public:
+		enum class EType {
+			Global,
+			SubscriptString,
+			SubscriptInteger,
+		};
+		GetSet(EType type, lua_State *state, const char *str) :
+			m_Type(type),
+			m_State(state),
+			m_Str(str) {}
+
+		void Get() {
+			switch(m_Type) {
+			case EType::Global:
+				break;
+			case EType::SubscriptInteger:
+				break;
+			case EType::SubscriptString:
+				break;
+			default:
+				break;
+			}
+		}
+
+		void Set() {
+			switch(m_Type) {
+			case EType::Global:
+				Get();
+				lua_setglobal( m_State, m_Str );
+				break;
+			case EType::SubscriptInteger:
+				lua_pushinteger( m_State, m_Idx );
+				Get();
+				lua_settable( m_State, -3 );
+				lua_pop( m_State, 1 );
+				break;
+			case EType::SubscriptString:
+				Get();
+				lua_setfield( m_State, -2, m_Str );
+				lua_pop( m_State, 1 );
+				break;
+			default:
+				break;
+			}
+		}
+
+	private:
+		lua_State *m_State = nullptr;
+		lua_Integer m_Idx;
+		const char *m_Str = nullptr;
+		EType m_Type;
+	};
+
 	// Contains a list of getters in order to navigate
 	// towards this variable
-	Vector<Getter> m_navList;
-
-	Getter m_getter;
-	Setter m_setter;
-	
-	Reference *parent = nullptr;
-	lua_State *m_l;
-	Name m_name;
+	mj::Vector<Getter> m_navList;
+	GetSet m_GetSet;
+	Reference *m_Parent = nullptr;
+	lua_State *m_L;
+	Name m_Name;
 };
 }
 }

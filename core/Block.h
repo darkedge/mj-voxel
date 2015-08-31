@@ -19,6 +19,20 @@ namespace mj
 	class Block
 	{
 	public:
+		class Face
+		{
+		public:
+			bool transparent;
+			int type;
+			int side;
+
+			bool equals( const Face &other )
+			{
+				return this->transparent == other.transparent && this->type == other.type;
+			}
+		private:
+
+		};
 		Block();
 		~Block();
 

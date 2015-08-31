@@ -19,6 +19,6 @@ void TestLua()
 
 void main()
 {
-	TestLua();
+	//TestLua();
 	( new mj::Application( "mj-voxel" ) )->Run();
 }

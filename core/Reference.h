@@ -3,34 +3,6 @@
 
 namespace mj {
 namespace lua {
-
-
-#if 0
-// Helper functions for tables
-void GetField(lua_State *L, lua_Integer i)
-{
-	// Assume table is pushed on the stack
-	lua_pushinteger( L, i ); // push index on the stack
-	lua_gettable( L, -2 ); // pop index, push table[i] on the stack
-}
-
-void GetField( lua_State *L, const char *name )
-{
-	// Assume table is pushed on the stack
-	lua_getfield( L, -2, name ); // push table[name] on the stack
-}
-
-void SetField( lua_State *L, lua_Integer i )
-{
-
-}
-
-void SetField( lua_State *L, const char *name )
-{
-
-}
-#endif
-
 /************************************************************************/
 /* Reference                                                            */
 /************************************************************************/
@@ -38,95 +10,155 @@ void SetField( lua_State *L, const char *name )
 // There are eight basic types in Lua: nil, boolean, number, string, function, userdata, thread, and table.
 class Reference
 {
+private:
+	class Accessor {
+	public:
+		enum class EType {
+			Global,
+			SubscriptString,
+			SubscriptInteger,
+		};
+
+		/************************************************************************/
+		/* CONSTRUCTORS                                                         */
+		/************************************************************************/
+		// Default constructor
+		Accessor() {}
+
+		// Subscript string
+		Accessor(EType type, lua_State *state, const char *str) :
+			m_Type(type),
+			m_State(state),
+			m_Str(str) {}
+
+		// Subscript integer
+		Accessor(EType type, lua_State *state, lua_Integer idx) :
+			m_Type(type),
+			m_State(state),
+			m_Idx(idx) {}
+
+		void Get() const {
+			switch (m_Type) {
+			case EType::Global:
+				lua_getglobal(m_State, m_Str);
+				break;
+			case EType::SubscriptInteger:
+				lua_pushinteger(m_State, m_Idx);
+				lua_gettable(m_State, -2);
+				break;
+			case EType::SubscriptString:
+				lua_getfield(m_State, -1, m_Str);
+				break;
+			default:
+				break;
+			}
+		}
+
+		void Set() const {
+			switch (m_Type) {
+			case EType::Global:
+				lua_setglobal(m_State, m_Str);
+				break;
+			case EType::SubscriptInteger:
+				lua_pushinteger(m_State, m_Idx);
+				lua_settable(m_State, -3);
+				lua_pop(m_State, 1);
+				break;
+			case EType::SubscriptString:
+				lua_setfield(m_State, -2, m_Str);
+				lua_pop(m_State, 1);
+				break;
+			default:
+				break;
+			}
+		}
+
+	private:
+		lua_State *m_State = nullptr;
+		lua_Integer m_Idx = -1;
+		const char *m_Str = nullptr;
+		EType m_Type;
+	};
+
 public:
-	// Because we don't store the reference directly,
-	// we need a way to get the referenced value back.
-	// We store a sequence of function calls to
-	// get the value on the stack.
-	typedef std::function<void()> Getter;
-
-	// We use the getter in order to set a value
-	typedef std::function<void( Getter )> Setter;
-
+	/************************************************************************/
+	/* CONSTRUCTORS                                                         */
+	/************************************************************************/
 	// Creates a reference for a global object.
-	Reference( lua_State *l, const char *name )
-		: m_l( l ), m_name( Name( name ) )
-	{
-		m_getter = [this, name]() {
-			lua_getglobal( m_l, name );
-		};
-		m_setter = [this, name]( Getter getter ) {
-			getter();
-			lua_setglobal( m_l, name );
-		};
-	}
+	Reference(lua_State *l, const char *name) :
+		m_l(l),
+		m_name(Name(name)),
+		m_accessor(Accessor::EType::Global, l, name) {}
 
 	// Creates a reference for a nested object.
-	Reference( lua_State *l, const char *name, Reference *bla, Getter getter, Setter setter )
-		: m_l( l ), m_name( Name( name ) ), m_navList( bla->m_navList ), m_getter( getter ), m_setter( setter )
+	Reference(lua_State *l, const char *name, Reference *bla, Accessor getSet)
+		: m_l(l), m_name(Name(name)), m_navList(bla->m_navList), m_accessor(getSet)
 	{
-		m_navList.Add( bla->m_getter );
+		m_navList.Add(bla->m_accessor);
 	}
 
-	void _traverse() const
+	void Traverse() const
 	{
-		for ( int32 i = 0; i < m_navList.Size(); i++ )
+		for (int32 i = 0; i < m_navList.Size(); i++)
 		{
-			m_navList[i]();
+			m_navList[i].Get();
 		}
 	}
 
-	void _check_create_table() const
+	// Checks if this reference is a table. If not, one is created.
+	void CreateTable() const
 	{
-		_traverse();
-		m_getter();
-		if ( lua_istable( m_l, -1 ) == 0 )
+		Traverse();
+		m_accessor.Get();
+		if (lua_istable(m_l, -1))
 		{
-			// not table
-			lua_pop( m_l, 1 ); // Pop table
-			auto put = [this]() {
-				lua_newtable( m_l );
-			};
-			m_setter( put );
+			// Dismiss
+			lua_pop(m_l, 1);
 		}
 		else
 		{
-			lua_pop( m_l, 1 );
+			// Pop reference
+			lua_pop(m_l, 1);
+			// Push new table
+			lua_newtable(m_l);
+			m_accessor.Set();
 		}
 	}
 
 	/************************************************************************/
 	/* DEREFERENCE                                                          */
 	/************************************************************************/
+#if 0
 	operator lua_Integer() const
 	{
-		lua_getglobal( m_l, m_name ); // Push value
-		auto ret = lua_tointeger( m_l, -1 );
-		lua_pop( m_l, 1 ); // Pop value
+		lua_getglobal(m_L, m_Name); // Push value
+		auto ret = lua_tointeger(m_L, -1);
+		lua_pop(m_L, 1); // Pop value
 		return ret;
 	}
+#endif
 
 	operator const char *() const
 	{
-		lua_getglobal( m_l, m_name ); // Push value
-		auto ret = lua_tostring( m_l, -1 );
-		lua_pop( m_l, 1 ); // Pop value
+		lua_getglobal(m_l, m_name); // Push value
+		auto ret = lua_tostring(m_l, -1);
+		lua_pop(m_l, 1); // Pop value
 		return ret;
 	}
 
 	operator lua_Number() const
 	{
-		lua_getglobal( m_l, m_name ); // Push value
-		auto ret = lua_tonumber( m_l, -1 );
-		lua_pop( m_l, 1 ); // Pop value
+		lua_getglobal(m_l, m_name); // Push value
+		auto ret = lua_tonumber(m_l, -1);
+		lua_pop(m_l, 1); // Pop value
 		return ret;
 	}
 
 	operator bool() const
 	{
-		lua_getglobal( m_l, m_name ); // Push value
-		auto ret = lua_toboolean( m_l, -1 ) != 0;
-		lua_pop( m_l, 1 ); // Pop value
+		lua_getglobal(m_l, m_name); // Push value
+		auto ret = lua_toboolean(m_l, -1) != 0;
+		lua_pop(m_l, 1); // Pop value
 		return ret;
 	}
 
@@ -134,34 +166,34 @@ public:
 	void Print() const
 	{
 		const char *str = operator const char*();
-		printf( "%s = %s\n", m_name, str );
+		printf("%s = %s\n", m_name, str);
 	}
 
 	/************************************************************************/
 	/* ASSIGNMENT                                                           */
 	/************************************************************************/
-	Reference & operator=( const Reference & rhs )
+	Reference & operator=(const Reference & rhs)
 	{
 		if (this != &rhs) {
-			lua_getglobal( m_l, rhs.m_name ); // Push value
-			lua_setglobal( m_l, this->m_name );
+			lua_getglobal(m_l, rhs.m_name); // Push value
+			lua_setglobal(m_l, this->m_name);
 		}
 
 		return *this;
 	}
 
-	Reference & operator=( lua_Integer i )
+	Reference & operator=(lua_Integer i)
 	{
-		lua_pushinteger( m_l, i );
-		lua_setglobal( m_l, m_name );
+		lua_pushinteger(m_l, i);
+		lua_setglobal(m_l, m_name);
 
 		return *this;
 	}
 
-	Reference & operator=( const char * str )
+	Reference & operator=(const char * str)
 	{
-		lua_pushstring( m_l, str );
-		lua_setglobal( m_l, m_name );
+		lua_pushstring(m_l, str);
+		lua_setglobal(m_l, m_name);
 
 		return *this;
 	}
@@ -170,53 +202,30 @@ public:
 	/* QUERY                                                                */
 	/************************************************************************/
 	// TODO: const versions?
-	Reference operator[]( lua_Integer index )
+	Reference operator[](lua_Integer index)
 	{
 		char str[32];
-		sprintf( str, "%d", index );
-		//Name name( { m_name, ".", str } ); // Equals Name name(Name { m_name, ".", str } );
+		sprintf(str, "%d", index);
 		Name name{ m_name, ".", str };
-		_check_create_table();
-		Getter getter = [this, index]() {
-			lua_pushinteger( m_l, index );
-			lua_gettable( m_l, -2 );
-		};
-
-		Setter setter = [this, index]( Getter getter ) {
-			lua_pushinteger( m_l, index );
-			getter();
-			lua_settable( m_l, -3 );
-			lua_pop( m_l, 1 );
-		};
+		CreateTable();
+		Accessor accessor(Accessor::EType::SubscriptInteger, m_l, index);
+		return Reference(m_l, name, this, accessor);
 	}
 
-	Reference operator[]( const char *str )
+	Reference operator[](const char *str)
 	{
-		//Name name( { m_name, ".", str } );
 		Name name{ m_name, ".", str };
-		_check_create_table();
-		Getter getter = [this, str]() {
-			lua_getfield( m_l, -1, str );
-		};
-
-		Setter setter = [this, str]( Getter getter ) {
-			getter();
-			lua_setfield( m_l, -2, str );
-			lua_pop( m_l, 1 );
-		};
-
-		return Reference( m_l, name, this, getter, setter );
+		CreateTable();
+		Accessor accessor(Accessor::EType::SubscriptString, m_l, str);
+		return Reference(m_l, name, this, accessor);
 	}
 
 private:
 	// Contains a list of getters in order to navigate
 	// towards this variable
-	Vector<Getter> m_navList;
-
-	Getter m_getter;
-	Setter m_setter;
-	
-	Reference *parent = nullptr;
+	mj::Vector<Accessor> m_navList;
+	Accessor m_accessor;
+	Reference *m_parent = nullptr; // TODO: unused
 	lua_State *m_l;
 	Name m_name;
 };

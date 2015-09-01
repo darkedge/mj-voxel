@@ -5,7 +5,8 @@ namespace mj {
 	class Vector
 	{
 	public:
-		Vector(); // TODO: other constructors
+		Vector();
+		Vector(const Vector &other);
 		explicit Vector( int32 size );
 		~Vector();
 
@@ -44,8 +45,17 @@ namespace mj {
 	Vector<T>::Vector() :
 		m_ptr( nullptr ),
 		m_size( 0 ),
-		m_alloc( 0 )
+		m_alloc( 0 ) {}
+
+	// Copy constructor
+	template<class T>
+	Vector<T>::Vector(const Vector &other)
 	{
+		Resize(other.m_size);
+		for(int32 i = 0; i < m_size; i++)
+		{
+			m_ptr[i] = other[i];
+		}
 	}
 
 	template<class T>

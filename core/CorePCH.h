@@ -4,9 +4,8 @@
 // C++ Standard Library
 #include <cassert>
 #include <cstdlib>
-#include <functional>
+#include <cstdint>
 #include <utility>
-#include <memory>
 
 // Lua
 #include <lua.hpp>

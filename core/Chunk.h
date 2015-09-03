@@ -40,6 +40,7 @@ namespace mj {
 		struct Mesh {
 			Vector<math::float3> m_positions;
 			Vector<math::float4> m_colors;
+			Vector<math::float2> m_texcoords;
 			Vector<int32> m_indices;
 		};
 		void Destroy();
@@ -61,6 +62,7 @@ namespace mj {
 		math::float3 m_position;
 		GLuint m_vertexBuffer;
 		GLuint m_colorBuffer;
+		GLuint m_texCoordBuffer;
 		GLuint m_vertexArray;
 		GLuint m_indexBuffer;
 		int32 m_numTris;

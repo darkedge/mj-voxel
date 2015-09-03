@@ -46,7 +46,7 @@ void mj::Chunk::Init()
 	}
 
 	m_blocks[0][0][0].m_enabled = false;
-	m_blocks[15][15][15].m_enabled = false;
+	m_blocks[8][8][15].m_enabled = false;
 
 	CreateMesh();
 }
@@ -287,21 +287,28 @@ void mj::Chunk::CreateMesh()
 	// Position buffer
 	GL_TRY(glGenBuffers(1, &m_vertexBuffer));
 	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer));
-	GL_TRY(glBufferData(GL_ARRAY_BUFFER, mesh.m_positions.Size() * sizeof(math::float3), &mesh.m_positions[0], GL_STATIC_DRAW));
+	if (mesh.m_positions.Size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, mesh.m_positions.Size() * sizeof(math::float3), &mesh.m_positions[0], GL_STATIC_DRAW));
 	GL_TRY(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr));
 	GL_TRY(glEnableVertexAttribArray(0));
 
 	// Color buffer
 	GL_TRY(glGenBuffers(1, &m_colorBuffer));
 	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, m_colorBuffer));
-	GL_TRY(glBufferData(GL_ARRAY_BUFFER, mesh.m_colors.Size() * sizeof(math::float4), &mesh.m_colors[0], GL_STATIC_DRAW));
+	if (mesh.m_colors.Size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, mesh.m_colors.Size() * sizeof(math::float4), &mesh.m_colors[0], GL_STATIC_DRAW));
 	GL_TRY(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr));
 	GL_TRY(glEnableVertexAttribArray(1));
+
+	// Texcoord buffer
+	GL_TRY(glGenBuffers(1, &m_texCoordBuffer));
+	GL_TRY(glBindBuffer(GL_ARRAY_BUFFER, m_texCoordBuffer));
+	if (mesh.m_texcoords.Size() > 0) GL_TRY(glBufferData(GL_ARRAY_BUFFER, mesh.m_texcoords.Size() * sizeof(math::float2), &mesh.m_texcoords[0], GL_STATIC_DRAW));
+	GL_TRY(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr));
+	GL_TRY(glEnableVertexAttribArray(2));
 
 	// Index buffer
 	GL_TRY(glGenBuffers(1, &m_indexBuffer));
 	GL_TRY(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer));
-	GL_TRY(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.m_indices.Size() * sizeof(int32), &mesh.m_indices[0], GL_STATIC_DRAW));
+	if (mesh.m_indices.Size() > 0) GL_TRY(glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.m_indices.Size() * sizeof(int32), &mesh.m_indices[0], GL_STATIC_DRAW));
 
 	m_numTris = mesh.m_indices.Size() / 3;
 
@@ -405,6 +412,14 @@ void mj::Chunk::quad(
 		}
 	}
 
+	math::float2 texcoords[4] = {
+		math::float2(0.0f, 0.0f),
+		math::float2(0.0f, float(height)),
+		math::float2(float(width), float(height)),
+		math::float2(float(width), 0.0f),
+	};
+
+	mesh.m_texcoords.Add(texcoords, 4);
 	mesh.m_positions.Add(vertices, 4);
 	mesh.m_colors.Add(colorArray, 4);
 	mesh.m_indices.Add(indices, 6);
@@ -412,6 +427,7 @@ void mj::Chunk::quad(
 
 void mj::Chunk::Render()
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	GL_TRY(glBindVertexArray(m_vertexArray));
 	GL_TRY(glDrawElements(GL_TRIANGLES, m_numTris * 3, GL_UNSIGNED_INT, 0));
 	GL_TRY(glBindVertexArray(0));

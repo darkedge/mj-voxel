@@ -22,13 +22,13 @@ namespace mj
 		class Face
 		{
 		public:
-			bool transparent = false;
+			bool m_enabled = true;
 			int32 type = 0;
 			int32 side = 0;
 
 			bool equals( const Face &other )
 			{
-				return this->transparent == other.transparent && this->type == other.type;
+				return this->m_enabled == other.m_enabled && this->type == other.type;
 			}
 		private:
 

@@ -45,6 +45,9 @@ void mj::Chunk::Init()
 		}
 	}
 
+	m_blocks[0][0][0].m_enabled = false;
+	m_blocks[15][15][15].m_enabled = false;
+
 	CreateMesh();
 }
 
@@ -106,194 +109,176 @@ void mj::Chunk::CreateMesh()
 
 	This loop runs twice, and the inner loop 3 times - totally 6 iterations - one for each
 	voxel face.
-
-	true false
-	false true
-	false false
 	*/
-	for (bool backFace = true, b = false;
-		b != backFace;
-		backFace = backFace && b, b = !b)
+
+	// Which way the quad is facing
+	int32 sides[6] = { WEST, BOTTOM, NORTH, EAST, TOP, SOUTH };
+
+	for (int32 p = 0; p < 6; p++)
 	{
+		int32 d = p % 3;
+		bool backFace = p < 3;
 
-		/*
-		* We sweep over the 3 dimensions - most of what follows is well described by Mikola Lysenko
-		* in his post - and is ported from his Javascript implementation.  Where this implementation
-		* diverges, I've added commentary.
-		*/
-		for (int32 d = 0; d < 3; d++)
+		// 0 1 2 3 4 5
+		int32 u = (d + 1) % 3; // 1 2 0
+		int32 v = (d + 2) % 3; // 2 0 1
+
+		x[0] = 0;
+		x[1] = 0;
+		x[2] = 0;
+
+		q[0] = 0;
+		q[1] = 0;
+		q[2] = 0;
+		q[d] = 1;
+
+		// Here we're keeping track of the side that we're meshing.
+		side = sides[p];
+
+		// We move through the dimension from front to back
+		for (x[d] = -1; x[d] < CHUNK_WIDTH;)
 		{
-			// 0 1 2 3 4 5
-			int32 u = (d + 1) % 3; // 1 2 0
-			int32 v = (d + 2) % 3; // 2 0 1
+			// We compute the mask
+			int32 n = 0;
 
-			x[0] = 0;
-			x[1] = 0;
-			x[2] = 0;
-
-			q[0] = 0;
-			q[1] = 0;
-			q[2] = 0;
-			q[d] = 1;
-
-			// Here we're keeping track of the side that we're meshing.
-			if (d == 0)
+			for (x[v] = 0; x[v] < CHUNK_HEIGHT; x[v]++)
 			{
-				side = backFace ? WEST : EAST;
-			}
-			else if (d == 1)
-			{
-				side = backFace ? BOTTOM : TOP;
-			}
-			else if (d == 2)
-			{
-				side = backFace ? SOUTH : NORTH;
-			}
-
-			// We move through the dimension from front to back
-			for (x[d] = -1; x[d] < CHUNK_WIDTH;)
-			{
-				// We compute the mask
-				int32 n = 0;
-
-				for (x[v] = 0; x[v] < CHUNK_HEIGHT; x[v]++)
+				for (x[u] = 0; x[u] < CHUNK_WIDTH; x[u]++)
 				{
-					for (x[u] = 0; x[u] < CHUNK_WIDTH; x[u]++)
+					// Here we retrieve two voxel faces for comparison.
+					Block::Face *voxelFace = nullptr;
+					Block::Face *voxelFace1 = nullptr;
+					if (x[d] >= 0)
 					{
-						// Here we retrieve two voxel faces for comparison.
-						Block::Face *voxelFace = nullptr;
-						Block::Face *voxelFace1 = nullptr;
-						if (x[d] >= 0)
-						{
-							voxelFace = getVoxelFace(x, side);
-						}
-						if (x[d] < CHUNK_WIDTH - 1)
-						{
-							voxelFace1 = getVoxelFace(x + q, side);
-						}
+						voxelFace = getVoxelFace(x, side);
+					}
+					if (x[d] < CHUNK_WIDTH - 1)
+					{
+						voxelFace1 = getVoxelFace(x + q, side);
+					}
 
-						/*
-						* Note that we're using the equals function in the voxel face class here, which lets the faces
-						* be compared based on any number of attributes.
-						*
-						* Also, we choose the face to add to the mask depending on whether we're moving through on a backface or not.
-						*/
-						if (voxelFace && voxelFace1 && voxelFace->equals(*voxelFace1))
+					/*
+					* Note that we're using the equals function in the voxel face class here, which lets the faces
+					* be compared based on any number of attributes.
+					*
+					* Also, we choose the face to add to the mask depending on whether we're moving through on a backface or not.
+					*/
+					if (voxelFace && voxelFace1 && voxelFace->equals(*voxelFace1))
+					{
+						mask[n] = nullptr;
+					}
+					else
+					{
+						if (backFace)
 						{
-							mask[n++] = nullptr;
+							mask[n] = voxelFace1;
 						}
 						else
 						{
-							if (backFace)
-							{
-								mask[n++] = voxelFace1;
-							}
-							else
-							{
-								mask[n++] = voxelFace;
-							}
+							mask[n] = voxelFace;
 						}
-					} // End u loop
-				} // End v loop
+					}
+					n++;
+				} // End u loop
+			} // End v loop
 
-				x[d]++;
+			x[d]++;
 
-				// Now we generate the mesh for the mask
-				n = 0;
+			// Now we generate the mesh for the mask
+			n = 0;
 
-				for (int32 j = 0; j < CHUNK_HEIGHT; j++)
+			for (int32 j = 0; j < CHUNK_HEIGHT; j++)
+			{
+				for (int32 i = 0; i < CHUNK_WIDTH;)
 				{
-					for (int32 i = 0; i < CHUNK_WIDTH;)
+					if (mask[n])
 					{
-						if (mask[n])
+						int32 width = 0;
+						int32 height = 0;
+						// Compute width
+						for (width = 1; i + width < CHUNK_WIDTH && mask[n + width] != nullptr && mask[n + width]->equals(*mask[n]); width++) {}
+
+						// Compute height
+						bool done = false;
+						for (height = 1; j + height < CHUNK_HEIGHT; height++)
 						{
-							int32 width = 0;
-							int32 height = 0;
-							// Compute width
-							for (width = 1; i + width < CHUNK_WIDTH && mask[n + width] != nullptr && mask[n + width]->equals(*mask[n]); width++) {}
-
-							// Compute height
-							bool done = false;
-							for (height = 1; j + height < CHUNK_HEIGHT; height++)
+							for (int32 k = 0; k < width; k++)
 							{
-								for (int32 k = 0; k < width; k++)
+								if (mask[n + k + height * CHUNK_WIDTH] == nullptr || !mask[n + k + height * CHUNK_WIDTH]->equals(*mask[n]))
 								{
-									if (mask[n + k + height * CHUNK_WIDTH] == nullptr || !mask[n + k + height * CHUNK_WIDTH]->equals(*mask[n]))
-									{
-										done = true;
-										break;
-									}
-								}
-
-								if (done)
-								{
+									done = true;
 									break;
 								}
 							}
 
-							/*
-							* Here we check the "transparent" attribute in the Block::Face class to ensure that we don't mesh
-							* any culled faces.
-							*/
-							//if (!mask[n]->transparent)
+							if (done)
 							{
-								/*
-								* Add quad
-								*/
-								x[u] = i;
-								x[v] = j;
-
-								du[0] = 0;
-								du[1] = 0;
-								du[2] = 0;
-								du[u] = width;
-
-								dv[0] = 0;
-								dv[1] = 0;
-								dv[2] = 0;
-								dv[v] = height;
-
-								/*
-								* And here we call the quad function in order to render a merged quad in the scene.
-								*
-								* We pass mask[n] to the function, which is an instance of the Block::Face class containing
-								* all the attributes of the face - which allows for variables to be passed to shaders - for
-								* example lighting values used to create ambient occlusion.
-								*/
-								quad(mesh, math::float3(x[0], x[1], x[2]),
-									math::float3(x[0] + du[0], x[1] + du[1], x[2] + du[2]),
-									math::float3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]),
-									math::float3(x[0] + dv[0], x[1] + dv[1], x[2] + dv[2]),
-									width,
-									height,
-									*mask[n],
-									backFace);
+								break;
 							}
-
-							// We zero out the mask
-							for (int32 l = 0; l < height; l++)
-							{
-								for (int32 k = 0; k < width; k++)
-								{
-									mask[n + k + l * CHUNK_WIDTH] = nullptr;
-								}
-							}
-
-
-							// And then finally increment the counters and continue
-							i += width;
-							n += width;
 						}
-						else
+
+						/*
+						* Here we check the "transparent" attribute in the Block::Face class to ensure that we don't mesh
+						* any culled faces.
+						*/
+						if (mask[n]->m_enabled)
 						{
-							i++;
-							n++;
+							/*
+							* Add quad
+							*/
+							x[u] = i;
+							x[v] = j;
+
+							du[0] = 0;
+							du[1] = 0;
+							du[2] = 0;
+							du[u] = width;
+
+							dv[0] = 0;
+							dv[1] = 0;
+							dv[2] = 0;
+							dv[v] = height;
+
+							/*
+							* And here we call the quad function in order to render a merged quad in the scene.
+							*
+							* We pass mask[n] to the function, which is an instance of the Block::Face class containing
+							* all the attributes of the face - which allows for variables to be passed to shaders - for
+							* example lighting values used to create ambient occlusion.
+							*/
+							quad(mesh, math::float3(x[0], x[1], x[2]),
+								math::float3(x[0] + du[0], x[1] + du[1], x[2] + du[2]),
+								math::float3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]),
+								math::float3(x[0] + dv[0], x[1] + dv[1], x[2] + dv[2]),
+								width,
+								height,
+								*mask[n],
+								backFace);
 						}
+
+						// We zero out the mask
+						for (int32 l = 0; l < height; l++)
+						{
+							for (int32 k = 0; k < width; k++)
+							{
+								mask[n + k + l * CHUNK_WIDTH] = nullptr;
+							}
+						}
+
+
+						// And then finally increment the counters and continue
+						i += width;
+						n += width;
 					}
-				} // End mesh loop
-			} // End chunk size loop
-		} // End axis loop
-	} // End backface loop
+					else
+					{
+						i++;
+						n++;
+					}
+				}
+			} // End mesh loop
+		} // End chunk size loop
+	} // End axis loop
 
 	// Create VAO
 	GL_TRY(glGenVertexArrays(1, &m_vertexArray));
@@ -312,7 +297,6 @@ void mj::Chunk::CreateMesh()
 	GL_TRY(glBufferData(GL_ARRAY_BUFFER, mesh.m_colors.Size() * sizeof(math::float4), &mesh.m_colors[0], GL_STATIC_DRAW));
 	GL_TRY(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr));
 	GL_TRY(glEnableVertexAttribArray(1));
-
 
 	// Index buffer
 	GL_TRY(glGenBuffers(1, &m_indexBuffer));
@@ -337,11 +321,18 @@ void mj::Chunk::CreateMesh()
 mj::Block::Face *mj::Chunk::getVoxelFace(math::int3 xyz, int32 side)
 {
 
-	Block::Face voxelFace = m_blocks[xyz.x][xyz.y][xyz.z];
+	Block::Face &voxelFace = m_blocks[xyz.x][xyz.y][xyz.z];
 
 	voxelFace.side = side;
 
-	return &voxelFace;
+	if (voxelFace.m_enabled)
+	{
+		return &voxelFace;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 /**
@@ -367,29 +358,29 @@ void mj::Chunk::quad(
 
 	mj::math::float3 vertices[4] = {
 		bottomLeft * VOXEL_SIZE,
-		bottomRight * VOXEL_SIZE,
 		topLeft * VOXEL_SIZE,
 		topRight * VOXEL_SIZE,
+		bottomRight * VOXEL_SIZE,
 	};
 
-	int32 indexes[6];
+	int32 indices[6];
 	{
 		if (backFace)
 		{
-			int32 a[6] = { 2, 0, 1, 1, 3, 2 };
-			memcpy(indexes, a, sizeof(indexes));
+			int32 a[6] = { 0, 3, 2, 2, 1, 0 };
+			memcpy(indices, a, sizeof(indices));
 		}
 		else
 		{
-			int32 a[6] = { 2, 3, 1, 1, 0, 2 };
-			memcpy(indexes, a, sizeof(indexes));
+			int32 a[6] = { 0, 1, 2, 2, 3, 0 };
+			memcpy(indices, a, sizeof(indices));
 		}
 	}
 
 	// Offset with existing data count
 	for (int32 i = 0; i < 6; i++)
 	{
-		indexes[i] += mesh.m_positions.Size();
+		indices[i] += mesh.m_positions.Size();
 	}
 
 	math::float4 colorArray[4];
@@ -410,33 +401,33 @@ void mj::Chunk::quad(
 		}
 		else
 		{
-			colorArray[i] = { 0.0f, 0.0f, 1.0f, 1.0f };
+			colorArray[i] = { 1.0f, 1.0f, 1.0f, 0.8f };
 		}
 	}
 
 	mesh.m_positions.Add(vertices, 4);
 	mesh.m_colors.Add(colorArray, 4);
-	mesh.m_indices.Add(indexes, 6);
+	mesh.m_indices.Add(indices, 6);
 }
 
 void mj::Chunk::Render()
 {
 	GL_TRY(glBindVertexArray(m_vertexArray));
-	GL_TRY(glDrawArrays(GL_TRIANGLES, 0, 3 * m_numTris));
+	GL_TRY(glDrawElements(GL_TRIANGLES, m_numTris * 3, GL_UNSIGNED_INT, 0));
 	GL_TRY(glBindVertexArray(0));
 }
 
 #if 0
-mj::Chunk& mj::Chunk::operator=( const mj::Chunk &other )
+mj::Chunk& mj::Chunk::operator=(const mj::Chunk &other)
 {
-	if ( this != &other )
+	if (this != &other)
 	{
 		Destroy();
 		this->m_position = other.m_position;
-		if ( other.m_blocks )
+		if (other.m_blocks)
 		{
 			m_blocks = new Block **[CHUNK_WIDTH];
-			for ( int32 x = 0; x < CHUNK_WIDTH; x++ )
+			for (int32 x = 0; x < CHUNK_WIDTH; x++)
 			{
 				m_blocks[x] = new Block*[CHUNK_HEIGHT];
 				for (int32 y = 0; y < CHUNK_HEIGHT; y++)
@@ -444,7 +435,7 @@ mj::Chunk& mj::Chunk::operator=( const mj::Chunk &other )
 					m_blocks[x][y] = new Block[CHUNK_DEPTH];
 					memcpy(m_blocks[x][y], other.m_blocks[x][y], CHUNK_DEPTH * sizeof(Block));
 				}
-}
+			}
 		}
 	}
 

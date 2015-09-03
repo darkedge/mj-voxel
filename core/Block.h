@@ -22,9 +22,9 @@ namespace mj
 		class Face
 		{
 		public:
-			bool transparent;
-			int type;
-			int side;
+			bool transparent = false;
+			int32 type = 0;
+			int32 side = 0;
 
 			bool equals( const Face &other )
 			{

@@ -1,5 +1,4 @@
-#include "Common.h"
-#include "CoreGL.h"
+#include "CorePCH.h"
 #include "Texture.h"
 #include "Random.h"
 

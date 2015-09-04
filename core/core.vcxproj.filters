@@ -22,6 +22,7 @@
     <ClCompile Include="UnityBuild.cpp">
       <Filter>UnityBuild</Filter>
     </ClCompile>
+    <ClCompile Include="Macro.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GBuffer.h" />
@@ -51,6 +52,7 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="CoreGL.h" />
+    <ClInclude Include="Macro.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

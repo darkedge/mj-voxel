@@ -1,12 +1,15 @@
+// Unity build file
+// Exclude all .cpp files from build
+// and put them here instead
 #include "Application.cpp"
 #include "Block.cpp"
 #include "Camera.cpp"
 #include "Chunk.cpp"
 #include "Color.cpp"
-#include "CoreGL.cpp"
 #include "GBuffer.cpp"
 #include "glad.c"
 #include "Input.cpp"
+#include "Macro.cpp"
 #include "Main.cpp"
 #include "MathUtil.cpp"
 #include "MeshManager.cpp"

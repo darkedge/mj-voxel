@@ -1,4 +1,4 @@
-#include "Common.h"
+#include "CorePCH.h"
 #include <GLFW/glfw3.h>
 #include "Input.h"
 #include "Application.h"
@@ -208,7 +208,7 @@ const int32 mj::KeyCode::ENTER = GLFW_KEY_ENTER;
 const int32 mj::KeyCode::TAB = GLFW_KEY_TAB;
 const int32 mj::KeyCode::BACKSPACE = GLFW_KEY_BACKSPACE;
 const int32 mj::KeyCode::INSERT = GLFW_KEY_INSERT;
-const int32 mj::KeyCode::DELETE = GLFW_KEY_DELETE;
+const int32 mj::KeyCode::DELETE_ = GLFW_KEY_DELETE;
 const int32 mj::KeyCode::RIGHT = GLFW_KEY_RIGHT;
 const int32 mj::KeyCode::LEFT = GLFW_KEY_LEFT;
 const int32 mj::KeyCode::DOWN = GLFW_KEY_DOWN;

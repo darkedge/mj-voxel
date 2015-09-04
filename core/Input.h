@@ -117,7 +117,7 @@ static const int32 ENTER;
 static const int32 TAB;
 static const int32 BACKSPACE;
 static const int32 INSERT;
-static const int32 DELETE;
+static const int32 DELETE_;
 static const int32 RIGHT;
 static const int32 LEFT;
 static const int32 DOWN;

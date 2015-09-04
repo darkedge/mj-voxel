@@ -4,9 +4,13 @@ class Random
 {
 public:
 	Random();
-	~Random();
 	
-	template <typename T>
-	static T Next();
+	static math::float4 NextFloat4();
+	static math::float2 NextFloat2();
+	static uint64 NextUint64();
+
+private:
+	static uint64 s[];
+	static int32 p;
 };
 }

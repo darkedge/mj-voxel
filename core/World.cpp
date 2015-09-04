@@ -16,6 +16,8 @@ mj::World::World()
 	m_camera = new mj::gl::Camera();
 	m_program = new mj::gl::Program( "Voxels.vert", "Voxels.frag" );
 
+	m_texture = gl::Texture::Texture2D("uv.png", true);
+
 	// Create world
 	for ( int x = 0; x < 1; x++ )
 	{
@@ -103,13 +105,16 @@ void mj::World::Tick()
 
 	// Bind camera
 	m_camera->Bind();
-
 	m_program->Bind();
+	m_program->SetUniform("uMatAlbedo", 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_texture->GetHandle());
+	
 
 	// Draw voxels
+	math::mat4 projection = m_camera->GetProjectionMatrix();
 	for ( int32 i = 0; i < m_chunks.Size(); i++ )
 	{
-		math::mat4 projection = m_camera->GetProjectionMatrix();
 		math::mat4 model = math::TranslationMatrix( m_chunks[i].GetPosition() );
 		math::mat4 mvp = projection * view * model;
 

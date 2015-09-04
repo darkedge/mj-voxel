@@ -2,7 +2,20 @@
 
 namespace mj
 {
-	enum BlockType
+class Block
+{
+public:
+	enum class ESide
+	{
+		South,
+		North,
+		East,
+		West,
+		Top,
+		Bottom,
+	};
+
+	enum class BlockType
 	{
 		BlockType_Default = 0,
 
@@ -16,31 +29,13 @@ namespace mj
 		BlockType_NumTypes,
 	};
 
-	class Block
+	bool equals(const Block &other)
 	{
-	public:
-		class Face
-		{
-		public:
-			bool m_enabled = true;
-			int32 type = 0;
-			int32 side = 0;
+		return this->m_enabled == other.m_enabled && this->type == other.type;
+	}
 
-			bool equals( const Face &other )
-			{
-				return this->m_enabled == other.m_enabled && this->type == other.type;
-			}
-		private:
-
-		};
-		Block();
-		~Block();
-
-		bool IsActive() const { return m_active; }
-		void SetActive( bool active ) { this->m_active = active; }
-
-	private:
-		bool m_active = true;
-		BlockType m_blockType;
-	};
+	bool m_enabled = true;
+	int32 type = 0;
+	ESide side;
+};
 }

@@ -1,5 +1,4 @@
 #pragma once
-#include "Chunk.h"
 
 namespace mj {
 	namespace gl {

@@ -1,4 +1,6 @@
 #pragma once
+#include "Block.h"
+#include "Color.h"
 
 namespace mj {
 	class Block;
@@ -10,7 +12,7 @@ namespace mj {
 		Chunk();
 		Chunk( const math::float3 &position );
 
-		Chunk( const Chunk &other ) = delete;				// Copy constructor
+		Chunk( const Chunk &other ) = delete;		// Copy constructor
 		Chunk( Chunk &&other );						// Move constructor
 		~Chunk();									// Destructor
 
@@ -21,24 +23,48 @@ namespace mj {
 		static const int32 CHUNK_HEIGHT = 16;
 		static const int32 CHUNK_DEPTH = 16;
 
-		Chunk& operator=( const Chunk &other ) = delete;		// Copy assignment operator
-		Chunk& operator=( Chunk &&other );			// Move assignment operator
+		static const int32 SOUTH      = 0;
+		static const int32 NORTH      = 1;
+		static const int32 EAST       = 2;
+		static const int32 WEST       = 3;
+		static const int32 TOP        = 4;
+		static const int32 BOTTOM     = 5;
 
-		Block &GetBlock( const mj::math::int3 &idx );
-		math::float3 GetPosition() const { return members.m_position; }
+		Chunk& operator=( const Chunk &other ) = delete;	// Copy assignment operator
+		Chunk& operator=( Chunk &&other );					// Move assignment operator
+
+		Block::Face &GetBlock( const math::int3 &idx );
+		math::float3 GetPosition() const { return m_position; }
 
 	private:
+		struct Mesh {
+			Vector<math::float3> m_positions;
+			Vector<math::float4> m_colors;
+			Vector<math::float2> m_texcoords;
+			Vector<int32> m_indices;
+		};
 		void Destroy();
 		void Init();
+		void quad(
+			Mesh &mesh,
+			const math::float3 &bottomLeft,
+			const math::float3 &topLeft,
+			const math::float3 &topRight,
+			const math::float3 &bottomRight,
+			int width,
+			int height,
+			const Block::Face &voxel,
+			bool backFace);
+		Block::Face *getVoxelFace(math::int3 xyz, int side);
 
-		Block ***m_blocks = nullptr;
-		struct 
-		{
-			math::float3 m_position;
-			GLuint m_vertexBuffer;
-			GLuint m_vertexArray;
-			GLuint m_indexBuffer;
-			int32 m_numTris;
-		} members;
+		Block::Face ***m_blocks = nullptr;
+		
+		math::float3 m_position;
+		GLuint m_vertexBuffer;
+		GLuint m_colorBuffer;
+		GLuint m_texCoordBuffer;
+		GLuint m_vertexArray;
+		GLuint m_indexBuffer;
+		int32 m_numTris;
 	};
 }

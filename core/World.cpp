@@ -1,5 +1,6 @@
 #include "CorePCH.h"
 #include "World.h"
+#include "Chunk.h"
 #include "Transform.h"
 #include "Camera.h"
 #include "Program.h"
@@ -40,13 +41,13 @@ void mj::World::MovePlayer()
 	static math::float2 lastRotation;
 	static math::float2 currentRotation;
 
-	if ( mj::Input::GetKeyDown( GLFW_KEY_M ) )
+	if ( mj::Input::GetKeyDown( KeyCode::M ) )
 	{
 		mj::Input::SetMouseGrabbed( !mj::Input::IsMouseGrabbed() );
 	}
 
 	// Reset
-	if ( mj::Input::GetKeyDown( GLFW_KEY_R ) )
+	if ( mj::Input::GetKeyDown( KeyCode::R ) )
 	{
 		currentRotation = lastRotation = { 0, 0 };
 		m_player->SetPosition( math::float3( 0, 0, 0 ) );
@@ -77,12 +78,12 @@ void mj::World::MovePlayer()
 	const float SPEED = 20.0f;
 	math::float3 translation(0,0,0);
 	math::quat orientation = m_player->GetRotation();
-	if ( mj::Input::GetKey( GLFW_KEY_W ) )		translation += m_player->Forward();
-	if ( mj::Input::GetKey( GLFW_KEY_A ) )		translation -= m_player->Right();
-	if ( mj::Input::GetKey( GLFW_KEY_S ) )		translation -= m_player->Forward();
-	if ( mj::Input::GetKey( GLFW_KEY_D ) )		translation += m_player->Right();
-	if ( mj::Input::GetKey( GLFW_KEY_LEFT_CONTROL ) || mj::Input::GetKey( GLFW_KEY_C ) || mj::Input::GetKey( GLFW_KEY_LEFT_SHIFT ) ) translation -= math::float3( 0, 1, 0 );
-	if ( mj::Input::GetKey( GLFW_KEY_SPACE ) ) translation += math::float3( 0, 1, 0 );
+	if (Input::GetKey(KeyCode::W))		translation += m_player->Forward();
+	if (Input::GetKey(KeyCode::A))		translation -= m_player->Right();
+	if (Input::GetKey(KeyCode::S))		translation -= m_player->Forward();
+	if (Input::GetKey(KeyCode::D))		translation += m_player->Right();
+	if (Input::GetKey(KeyCode::LEFT_CONTROL) || Input::GetKey(KeyCode::C) || Input::GetKey(KeyCode::LEFT_SHIFT)) translation -= math::float3(0, 1, 0);
+	if (Input::GetKey(KeyCode::SPACE)) translation += math::float3(0, 1, 0);
 	if ( translation != math::float3( 0, 0, 0 ) )
 	{
 		math::float3 pos = m_player->GetPosition();

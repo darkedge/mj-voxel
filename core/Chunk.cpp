@@ -35,18 +35,20 @@ mj::Chunk::Chunk(Chunk &&other)
 void mj::Chunk::Init()
 {
 	// Create blocks
-	m_blocks = new Block **[CHUNK_WIDTH];
-	for (int32 x = 0; x < CHUNK_WIDTH; x++)
-	{
-		m_blocks[x] = new Block*[CHUNK_HEIGHT];
-		for (int32 y = 0; y < CHUNK_HEIGHT; y++)
-		{
-			m_blocks[x][y] = new Block[CHUNK_DEPTH];
-		}
-	}
+	m_blocks = new Block [CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH];
 
-	m_blocks[0][0][0].m_enabled = false;
-	m_blocks[8][8][15].m_enabled = false;
+	// Remove some blocks for testing
+	m_blocks[0].m_enabled = false;
+	m_blocks[CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_DEPTH - 1].m_enabled = false;
+
+	m_blocks[8 * CHUNK_HEIGHT * CHUNK_DEPTH + 8 * CHUNK_DEPTH + 15].m_enabled = false;
+	m_blocks[8 * CHUNK_HEIGHT * CHUNK_DEPTH + 8 * CHUNK_DEPTH + 0].m_enabled = false;
+
+	m_blocks[8 * CHUNK_HEIGHT * CHUNK_DEPTH + 15 * CHUNK_DEPTH + 8].m_enabled = false;
+	m_blocks[8 * CHUNK_HEIGHT * CHUNK_DEPTH + 0 * CHUNK_DEPTH + 8].m_enabled = false;
+
+	m_blocks[15 * CHUNK_HEIGHT * CHUNK_DEPTH + 8 * CHUNK_DEPTH + 8].m_enabled = false;
+	m_blocks[0 * CHUNK_HEIGHT * CHUNK_DEPTH + 8 * CHUNK_DEPTH + 8].m_enabled = false;
 
 	CreateMesh();
 }
@@ -58,18 +60,6 @@ mj::Chunk::~Chunk()
 
 void mj::Chunk::Destroy()
 {
-	// Delete blocks
-	if (m_blocks)
-	{
-		for (int32 x = 0; x < CHUNK_WIDTH; x++) if (m_blocks[x])
-		{
-			for (int32 y = 0; y < CHUNK_HEIGHT; y++)
-			{
-				delete [] m_blocks[x][y];
-			}
-			delete [] m_blocks[x];
-		}
-	}
 	delete [] m_blocks;
 
 	// Delete GL buffer (TODO: RAII buffer class?)
@@ -253,6 +243,7 @@ void mj::Chunk::CreateMesh()
 							* all the attributes of the face - which allows for variables to be passed to shaders - for
 							* example lighting values used to create ambient occlusion.
 							*/
+							mask[n]->side = side;
 							quad(mesh, math::float3(x[0], x[1], x[2]),
 								math::float3(x[0] + du[0], x[1] + du[1], x[2] + du[2]),
 								math::float3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]),
@@ -335,7 +326,7 @@ void mj::Chunk::CreateMesh()
 mj::Block *mj::Chunk::GetVoxelFace(math::int3 xyz, Block::ESide side)
 {
 
-	Block &voxelFace = m_blocks[xyz.x][xyz.y][xyz.z];
+	Block &voxelFace = m_blocks[xyz.x * CHUNK_HEIGHT * CHUNK_DEPTH + xyz.y * CHUNK_DEPTH + xyz.z];
 
 	voxelFace.side = side;
 
@@ -377,12 +368,33 @@ void mj::Chunk::quad(
 		bottomRight * VOXEL_SIZE,
 	};
 
-	math::float2 texcoords[4] = {
+	if(voxel.side == Block::ESide::North
+		|| voxel.side == Block::ESide::South) {
+		std::swap(width, height);
+	}
+
+	// Rotate by shifting by one
+	math::float2 texcoords[7] = {
 		math::float2(0.0f, 0.0f),
 		math::float2(0.0f, float(width)),
 		math::float2(float(height), float(width)),
 		math::float2(float(height), 0.0f),
+		math::float2(0.0f, 0.0f),
+		math::float2(0.0f, float(width)),
+		math::float2(float(height), float(width)),
 	};
+
+	math::float2 flipped[7] = {
+		math::float2(float(height), 0.0f),
+		math::float2(float(height), float(width)),
+		math::float2(0.0f, float(width)),
+		math::float2(0.0f, 0.0f),
+		math::float2(float(height), 0.0f),
+		math::float2(float(height), float(width)),
+		math::float2(0.0f, float(width)),
+	};
+
+	math::float2 *texcoordptr = texcoords;
 
 	int32 indices[6];
 	{
@@ -404,29 +416,33 @@ void mj::Chunk::quad(
 		indices[i] += mesh.m_positions.Size();
 	}
 
-	//math::float4 colorArray[4];
-
 	for (int32 i = 0; i < 4; i++)
 	{
-		switch(voxel.type) {
+		switch(voxel.side) {
 		case Block::ESide::North:
+			texcoordptr = flipped + 1;
 			break;
 		case Block::ESide::East:
+			texcoordptr = texcoords + 2;
 			break;
 		case Block::ESide::South:
+			texcoordptr = texcoords + 1;
 			break;
 		case Block::ESide::West:
+			texcoordptr = flipped + 2;
 			break;
 		case Block::ESide::Top:
+			texcoordptr = texcoords;
 			break;
 		case Block::ESide::Bottom:
+			texcoordptr = flipped + 2;
 			break;
 		default:
 			break;
 		}
 	}
 
-	mesh.m_texcoords.Add(texcoords, 4);
+	mesh.m_texcoords.Add(texcoordptr, 4);
 	mesh.m_positions.Add(vertices, 4);
 	//mesh.m_colors.Add(colorArray, 4);
 	mesh.m_indices.Add(indices, 6);
@@ -485,9 +501,4 @@ mj::Chunk& mj::Chunk::operator=(mj::Chunk &&other)
 		other.m_indexBuffer = 0;
 	}
 	return *this;
-}
-
-mj::Block &mj::Chunk::GetBlock(const mj::math::int3 &idx)
-{
-	assert(m_blocks); return m_blocks[idx.x][idx.y][idx.z];
 }

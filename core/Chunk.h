@@ -26,7 +26,6 @@ namespace mj {
 		Chunk& operator=( const Chunk &other ) = delete;	// Copy assignment operator
 		Chunk& operator=( Chunk &&other );					// Move assignment operator
 
-		Block &GetBlock( const math::int3 &idx );
 		math::float3 GetPosition() const { return m_position; }
 
 	private:
@@ -50,7 +49,7 @@ namespace mj {
 			bool backFace);
 		Block *GetVoxelFace(math::int3 xyz, Block::ESide side);
 
-		Block ***m_blocks = nullptr;
+		Block *m_blocks = nullptr;
 		
 		math::float3 m_position;
 		GLuint m_vertexBuffer;

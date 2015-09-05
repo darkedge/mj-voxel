@@ -18,10 +18,11 @@ namespace mj {
 
 		void CreateMesh();
 		void Render();
+		Block *GetBlock(int32 x, int32 y, int32 z);
 
-		static const int32 CHUNK_WIDTH = 16;
-		static const int32 CHUNK_HEIGHT = 16;
-		static const int32 CHUNK_DEPTH = 16;
+		static const int32 WIDTH = 16;
+		static const int32 HEIGHT = 16;
+		static const int32 DEPTH = 16;
 
 		Chunk& operator=( const Chunk &other ) = delete;	// Copy assignment operator
 		Chunk& operator=( Chunk &&other );					// Move assignment operator
@@ -37,7 +38,7 @@ namespace mj {
 		};
 		void Destroy();
 		void Init();
-		void quad(
+		void AddQuadToMesh(
 			Mesh &mesh,
 			const math::float3 &bottomLeft,
 			const math::float3 &topLeft,

@@ -51,6 +51,7 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Macro.h" />
+    <ClInclude Include="CorePCH.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

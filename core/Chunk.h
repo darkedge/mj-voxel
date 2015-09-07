@@ -18,22 +18,15 @@ namespace mj {
 
 		void CreateMesh();
 		void Render();
+		Block *GetBlock(int32 x, int32 y, int32 z);
 
-		static const int32 CHUNK_WIDTH = 16;
-		static const int32 CHUNK_HEIGHT = 16;
-		static const int32 CHUNK_DEPTH = 16;
-
-		static const int32 SOUTH      = 0;
-		static const int32 NORTH      = 1;
-		static const int32 EAST       = 2;
-		static const int32 WEST       = 3;
-		static const int32 TOP        = 4;
-		static const int32 BOTTOM     = 5;
+		static const int32 WIDTH = 16;
+		static const int32 HEIGHT = 16;
+		static const int32 DEPTH = 16;
 
 		Chunk& operator=( const Chunk &other ) = delete;	// Copy assignment operator
 		Chunk& operator=( Chunk &&other );					// Move assignment operator
 
-		Block::Face &GetBlock( const math::int3 &idx );
 		math::float3 GetPosition() const { return m_position; }
 
 	private:
@@ -45,7 +38,7 @@ namespace mj {
 		};
 		void Destroy();
 		void Init();
-		void quad(
+		void AddQuadToMesh(
 			Mesh &mesh,
 			const math::float3 &bottomLeft,
 			const math::float3 &topLeft,
@@ -53,11 +46,11 @@ namespace mj {
 			const math::float3 &bottomRight,
 			int width,
 			int height,
-			const Block::Face &voxel,
+			const Block &voxel,
 			bool backFace);
-		Block::Face *getVoxelFace(math::int3 xyz, int side);
+		Block *GetVoxelFace(math::int3 xyz, Block::ESide side);
 
-		Block::Face ***m_blocks = nullptr;
+		Block *m_blocks = nullptr;
 		
 		math::float3 m_position;
 		GLuint m_vertexBuffer;

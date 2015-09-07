@@ -1,27 +1,32 @@
 #pragma once
 
 namespace mj {
-	namespace gl {
-		class Camera;
-		class Program;
-	}
-	class Chunk;
-	class Transform;
-	class World
-	{
-	public:
-		World();
-		~World();
+namespace gl {
+class Camera;
+class Program;
+class Texture;
+}
 
-		void Tick();
+class Chunk;
+class Block;
+class Transform;
+class World
+{
+public:
+	World();
+	~World();
 
-	private:
-		void MovePlayer();
+	void Tick();
 
-		gl::Camera *m_camera = nullptr;
-		gl::Program *m_program = nullptr;
-		Transform *m_player = nullptr;
+private:
+	void MovePlayer();
+	Block *PickBlock();
 
-		Vector<Chunk> m_chunks;
-	};
+	gl::Camera *m_camera = nullptr;
+	gl::Program *m_program = nullptr;
+	Transform *m_player = nullptr;
+	gl::Texture *m_texture = nullptr;
+
+	Vector<Chunk> m_chunks;
+};
 }

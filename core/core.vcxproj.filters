@@ -18,7 +18,6 @@
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Random.cpp" />
-    <ClCompile Include="CoreGL.cpp" />
     <ClCompile Include="UnityBuild.cpp">
       <Filter>UnityBuild</Filter>
     </ClCompile>
@@ -51,8 +50,8 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="CoreGL.h" />
     <ClInclude Include="Macro.h" />
+    <ClInclude Include="CorePCH.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

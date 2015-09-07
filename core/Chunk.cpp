@@ -35,18 +35,20 @@ mj::Chunk::Chunk(Chunk &&other)
 void mj::Chunk::Init()
 {
 	// Create blocks
-	m_blocks = new Block::Face **[CHUNK_WIDTH];
-	for (int32 x = 0; x < CHUNK_WIDTH; x++)
-	{
-		m_blocks[x] = new Block::Face*[CHUNK_HEIGHT];
-		for (int32 y = 0; y < CHUNK_HEIGHT; y++)
-		{
-			m_blocks[x][y] = new Block::Face[CHUNK_DEPTH];
-		}
-	}
+	m_blocks = new Block[WIDTH * HEIGHT * DEPTH];
 
-	m_blocks[0][0][0].m_enabled = false;
-	m_blocks[8][8][15].m_enabled = false;
+	// Remove some blocks for testing
+	m_blocks[0].m_enabled = false;
+	m_blocks[WIDTH * HEIGHT * DEPTH - 1].m_enabled = false;
+
+	m_blocks[8 * HEIGHT * DEPTH + 8 * DEPTH + 15].m_enabled = false;
+	m_blocks[8 * HEIGHT * DEPTH + 8 * DEPTH + 0].m_enabled = false;
+
+	m_blocks[8 * HEIGHT * DEPTH + 15 * DEPTH + 8].m_enabled = false;
+	m_blocks[8 * HEIGHT * DEPTH + 0 * DEPTH + 8].m_enabled = false;
+
+	m_blocks[15 * HEIGHT * DEPTH + 8 * DEPTH + 8].m_enabled = false;
+	m_blocks[0 * HEIGHT * DEPTH + 8 * DEPTH + 8].m_enabled = false;
 
 	CreateMesh();
 }
@@ -58,18 +60,6 @@ mj::Chunk::~Chunk()
 
 void mj::Chunk::Destroy()
 {
-	// Delete blocks
-	if (m_blocks)
-	{
-		for (int32 x = 0; x < CHUNK_WIDTH; x++) if (m_blocks[x])
-		{
-			for (int32 y = 0; y < CHUNK_HEIGHT; y++)
-			{
-				delete [] m_blocks[x][y];
-			}
-			delete [] m_blocks[x];
-		}
-	}
 	delete [] m_blocks;
 
 	// Delete GL buffer (TODO: RAII buffer class?)
@@ -84,12 +74,11 @@ void mj::Chunk::Destroy()
 void mj::Chunk::CreateMesh()
 {
 	Mesh mesh;
+
 	/*
 	* These are just working variables for the algorithm - almost all taken
 	* directly from Mikola Lysenko's javascript implementation.
 	*/
-	int32 side = 0;
-
 	mj::math::int3 x{ 0, 0, 0 };
 	mj::math::int3 q{ 0, 0, 0 };
 	mj::math::int3 du{ 0, 0, 0 };
@@ -99,7 +88,7 @@ void mj::Chunk::CreateMesh()
 	* We create a mask - this will contain the groups of matching voxel faces
 	* as we proceed through the chunk in 6 directions - once for each face.
 	*/
-	Block::Face *mask[CHUNK_WIDTH * CHUNK_HEIGHT] = { 0 };
+	Block *mask[WIDTH * HEIGHT] = { 0 };
 
 	/*
 	We start with the lesser-spotted bool for-loop (also known as the old flippy floppy).
@@ -112,7 +101,15 @@ void mj::Chunk::CreateMesh()
 	*/
 
 	// Which way the quad is facing
-	int32 sides[6] = { WEST, BOTTOM, NORTH, EAST, TOP, SOUTH };
+	Block::ESide sides[6] = {
+		Block::ESide::West,
+		Block::ESide::Bottom,
+		Block::ESide::North,
+		Block::ESide::East,
+		Block::ESide::Top,
+		Block::ESide::South,
+	};
+	Block::ESide side;
 
 	for (int32 p = 0; p < 6; p++)
 	{
@@ -136,25 +133,25 @@ void mj::Chunk::CreateMesh()
 		side = sides[p];
 
 		// We move through the dimension from front to back
-		for (x[d] = -1; x[d] < CHUNK_WIDTH;)
+		for (x[d] = -1; x[d] < WIDTH;)
 		{
 			// We compute the mask
 			int32 n = 0;
 
-			for (x[v] = 0; x[v] < CHUNK_HEIGHT; x[v]++)
+			for (x[v] = 0; x[v] < HEIGHT; x[v]++)
 			{
-				for (x[u] = 0; x[u] < CHUNK_WIDTH; x[u]++)
+				for (x[u] = 0; x[u] < WIDTH; x[u]++)
 				{
 					// Here we retrieve two voxel faces for comparison.
-					Block::Face *voxelFace = nullptr;
-					Block::Face *voxelFace1 = nullptr;
+					Block *voxelFace = nullptr;
+					Block *voxelFace1 = nullptr;
 					if (x[d] >= 0)
 					{
-						voxelFace = getVoxelFace(x, side);
+						voxelFace = GetVoxelFace(x, side);
 					}
-					if (x[d] < CHUNK_WIDTH - 1)
+					if (x[d] < WIDTH - 1)
 					{
-						voxelFace1 = getVoxelFace(x + q, side);
+						voxelFace1 = GetVoxelFace(x + q, side);
 					}
 
 					/*
@@ -187,24 +184,24 @@ void mj::Chunk::CreateMesh()
 			// Now we generate the mesh for the mask
 			n = 0;
 
-			for (int32 j = 0; j < CHUNK_HEIGHT; j++)
+			for (int32 j = 0; j < HEIGHT; j++)
 			{
-				for (int32 i = 0; i < CHUNK_WIDTH;)
+				for (int32 i = 0; i < WIDTH;)
 				{
 					if (mask[n])
 					{
 						int32 width = 0;
 						int32 height = 0;
 						// Compute width
-						for (width = 1; i + width < CHUNK_WIDTH && mask[n + width] != nullptr && mask[n + width]->equals(*mask[n]); width++) {}
+						for (width = 1; i + width < WIDTH && mask[n + width] != nullptr && mask[n + width]->equals(*mask[n]); width++) {}
 
 						// Compute height
 						bool done = false;
-						for (height = 1; j + height < CHUNK_HEIGHT; height++)
+						for (height = 1; j + height < HEIGHT; height++)
 						{
 							for (int32 k = 0; k < width; k++)
 							{
-								if (mask[n + k + height * CHUNK_WIDTH] == nullptr || !mask[n + k + height * CHUNK_WIDTH]->equals(*mask[n]))
+								if (mask[n + k + height * WIDTH] == nullptr || !mask[n + k + height * WIDTH]->equals(*mask[n]))
 								{
 									done = true;
 									break;
@@ -218,7 +215,7 @@ void mj::Chunk::CreateMesh()
 						}
 
 						/*
-						* Here we check the "transparent" attribute in the Block::Face class to ensure that we don't mesh
+						* Here we check the "transparent" attribute in the Block class to ensure that we don't mesh
 						* any culled faces.
 						*/
 						if (mask[n]->m_enabled)
@@ -242,11 +239,12 @@ void mj::Chunk::CreateMesh()
 							/*
 							* And here we call the quad function in order to render a merged quad in the scene.
 							*
-							* We pass mask[n] to the function, which is an instance of the Block::Face class containing
+							* We pass mask[n] to the function, which is an instance of the Block class containing
 							* all the attributes of the face - which allows for variables to be passed to shaders - for
 							* example lighting values used to create ambient occlusion.
 							*/
-							quad(mesh, math::float3(x[0], x[1], x[2]),
+							mask[n]->side = side;
+							AddQuadToMesh(mesh, math::float3(x[0], x[1], x[2]),
 								math::float3(x[0] + du[0], x[1] + du[1], x[2] + du[2]),
 								math::float3(x[0] + du[0] + dv[0], x[1] + du[1] + dv[1], x[2] + du[2] + dv[2]),
 								math::float3(x[0] + dv[0], x[1] + dv[1], x[2] + dv[2]),
@@ -261,7 +259,7 @@ void mj::Chunk::CreateMesh()
 						{
 							for (int32 k = 0; k < width; k++)
 							{
-								mask[n + k + l * CHUNK_WIDTH] = nullptr;
+								mask[n + k + l * WIDTH] = nullptr;
 							}
 						}
 
@@ -325,10 +323,10 @@ void mj::Chunk::CreateMesh()
 * check if the voxel face should be culled, and set per-face and per-vertex
 * values as well as voxel values in the returned instance.
 */
-mj::Block::Face *mj::Chunk::getVoxelFace(math::int3 xyz, int32 side)
+mj::Block *mj::Chunk::GetVoxelFace(math::int3 xyz, Block::ESide side)
 {
 
-	Block::Face &voxelFace = m_blocks[xyz.x][xyz.y][xyz.z];
+	Block &voxelFace = m_blocks[xyz.x * HEIGHT * DEPTH + xyz.y * DEPTH + xyz.z];
 
 	voxelFace.side = side;
 
@@ -351,7 +349,7 @@ mj::Block::Face *mj::Chunk::getVoxelFace(math::int3 xyz, int32 side)
 * be 0 - width or 0 - height. Then you can calculate the correct texture coordinate in your fragement
 * shader using coord.xy = fract(coord.xy).
 */
-void mj::Chunk::quad(
+void mj::Chunk::AddQuadToMesh(
 	Mesh &mesh,
 	const mj::math::float3 &bottomLeft,
 	const mj::math::float3 &topLeft,
@@ -359,7 +357,7 @@ void mj::Chunk::quad(
 	const mj::math::float3 &bottomRight,
 	int32 width,
 	int32 height,
-	const Block::Face &voxel,
+	const Block &voxel,
 	bool backFace)
 {
 
@@ -369,6 +367,31 @@ void mj::Chunk::quad(
 		topRight * VOXEL_SIZE,
 		bottomRight * VOXEL_SIZE,
 	};
+
+	if (voxel.side == Block::ESide::North
+		|| voxel.side == Block::ESide::South)
+	{
+		std::swap(width, height);
+	}
+
+	// Rotate by shifting by one
+	math::float2 texcoords [] = {
+		math::float2(0.0f, float(width)),
+		math::float2(float(height), float(width)),
+		math::float2(float(height), 0.0f),
+		math::float2(0.0f, 0.0f),
+		math::float2(0.0f, float(width)),
+	};
+
+	math::float2 flipped [] = {
+		math::float2(float(height), float(width)),
+		math::float2(0.0f, float(width)),
+		math::float2(0.0f, 0.0f),
+		math::float2(float(height), 0.0f),
+		math::float2(float(height), float(width)),
+	};
+
+	math::float2 *texcoordptr = texcoords;
 
 	int32 indices[6];
 	{
@@ -390,44 +413,42 @@ void mj::Chunk::quad(
 		indices[i] += mesh.m_positions.Size();
 	}
 
-	math::float4 colorArray[4];
-
 	for (int32 i = 0; i < 4; i++)
 	{
-		/*
-		* Here I set different colors for quads depending on the "type" attribute, just
-		* so that the different groups of voxels can be clearly seen.
-		*/
-		if (voxel.type == 1)
+		switch (voxel.side)
 		{
-			colorArray[i] = { 1.0f, 0.0f, 0.0f, 1.0f };
-		}
-		else if (voxel.type == 2)
-		{
-			colorArray[i] = { 0.0f, 1.0f, 0.0f, 1.0f };
-		}
-		else
-		{
-			colorArray[i] = { 1.0f, 1.0f, 1.0f, 0.8f };
+		case Block::ESide::North:
+			texcoordptr = flipped;
+			break;
+		case Block::ESide::East:
+			texcoordptr = texcoords + 1;
+			break;
+		case Block::ESide::South:
+			texcoordptr = texcoords;
+			break;
+		case Block::ESide::West:
+			texcoordptr = flipped + 1;
+			break;
+		case Block::ESide::Top:
+			texcoordptr = texcoords + 1;
+			break;
+		case Block::ESide::Bottom:
+			texcoordptr = flipped + 1;
+			break;
+		default:
+			break;
 		}
 	}
 
-	math::float2 texcoords[4] = {
-		math::float2(0.0f, 0.0f),
-		math::float2(0.0f, float(height)),
-		math::float2(float(width), float(height)),
-		math::float2(float(width), 0.0f),
-	};
-
-	mesh.m_texcoords.Add(texcoords, 4);
+	mesh.m_texcoords.Add(texcoordptr, 4);
 	mesh.m_positions.Add(vertices, 4);
-	mesh.m_colors.Add(colorArray, 4);
+	//mesh.m_colors.Add(colorArray, 4);
 	mesh.m_indices.Add(indices, 6);
 }
 
 void mj::Chunk::Render()
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	GL_TRY(glBindVertexArray(m_vertexArray));
 	GL_TRY(glDrawElements(GL_TRIANGLES, m_numTris * 3, GL_UNSIGNED_INT, 0));
 	GL_TRY(glBindVertexArray(0));
@@ -480,7 +501,11 @@ mj::Chunk& mj::Chunk::operator=(mj::Chunk &&other)
 	return *this;
 }
 
-mj::Block::Face &mj::Chunk::GetBlock(const mj::math::int3 &idx)
+mj::Block *mj::Chunk::GetBlock(int32 x, int32 y, int32 z)
 {
-	assert(m_blocks); return m_blocks[idx.x][idx.y][idx.z];
+	if(x < 0 || x >= Chunk::WIDTH) return nullptr;
+	if(y < 0 || y >= Chunk::HEIGHT) return nullptr;
+	if(z < 0 || z >= Chunk::DEPTH) return nullptr;
+
+	return &m_blocks[x * Chunk::HEIGHT * Chunk::DEPTH + y * Chunk::DEPTH + z];
 }

@@ -44,7 +44,9 @@ IF "%Configuration%" == "Debug" (
 	ECHO Unknown configuration!
 )
 
-REM Copy Lua and shader files
+REM Copy Lua, shader, image files
 XCOPY /Y "%ProjectDir%*.lua" %TargetDir%
 XCOPY /Y "%ProjectDir%*.frag" %TargetDir%
 XCOPY /Y "%ProjectDir%*.vert" %TargetDir%
+XCOPY /Y "%ProjectDir%*.jpg" %TargetDir%
+XCOPY /Y "%ProjectDir%*.png" %TargetDir%

@@ -132,62 +132,76 @@ mj::Block *mj::World::PickBlock()
 	Block *blockPtr = nullptr;
 	// pls max length or rip
 	// ray = u + t * v
-	int X, Y, Z = math::floor(m_player->GetPosition());
+	math::float3 origin = m_player->GetPosition();
 
-	int stepX, stepY, stepZ; // = (-1/1) signs of vector dir
-	float tMaxX; // t at first YZ-boundary
-	float tMaxY; // t at first XZ-boundary
-	float tMaxZ; // t at first XY-boundary
-	float tDeltaX; // length of v between two YZ-boundaries
-	float tDeltaY; // length of v between two XZ-boundaries
-	float tDeltaZ; // length of v between two XY-boundaries
+	printf("origin: %.3f %.3f %.3f\n", origin.x, origin.y, origin.z);
+
+	math::float3 direction = m_player->Forward();
+
+	printf("direction: %.3f %.3f %.3f\n", direction.x, direction.y, direction.z);
+
+	int32 X = (int32) floor(origin.x);
+	int32 Y = (int32) floor(origin.y);
+	int32 Z = (int32) floor(origin.z);
+
+	// = (-1/1) signs of vector dir
+	int32 stepX = (direction.x < 0) ? -1 : 1;
+	int32 stepY = (direction.y < 0) ? -1 : 1;
+	int32 stepZ = (direction.z < 0) ? -1 : 1;
+
+	printf("step: %d %d %d\n", stepX, stepY, stepZ);
+
+	float tMaxX = math::IntBound(origin.x, direction.x);
+	float tMaxY = math::IntBound(origin.y, direction.y);
+	float tMaxZ = math::IntBound(origin.z, direction.z);
+
+	printf("tMax: %.3f %.3f %.3f\n", tMaxX, tMaxY, tMaxZ);
+
+	float tDeltaX = (float) stepX / direction.x; // length of v between two YZ-boundaries
+	float tDeltaY = (float) stepY / direction.y; // length of v between two XZ-boundaries
+	float tDeltaZ = (float) stepZ / direction.z; // length of v between two XY-boundaries
+
+	printf("tDelta: %.3f %.3f %.3f\n", tDeltaX, tDeltaY, tDeltaZ);
+
+	float radius = 10.0f;
 
 	blockPtr = nullptr;
 	do
 	{
+		printf("trace: %d %d %d\n", X, Y, Z);
 		if (tMaxX < tMaxY)
 		{
 			if (tMaxX < tMaxZ)
 			{
+				if (tMaxX > radius) break;
 				X += stepX;
-				if (X == Chunk::WIDTH)
-				{
-					return nullptr;
-				}
-				tMaxX = tMaxX + tDeltaX;
+				tMaxX += tDeltaX;
 			}
 			else
 			{
+				if (tMaxZ > radius) break;
 				Z = Z + stepZ;
-				if (Z == Chunk::DEPTH)
-				{
-					return nullptr;
-				}
-				tMaxZ = tMaxZ + tDeltaZ;
+				tMaxZ += tDeltaZ;
 			}
 		}
 		else
 		{
 			if (tMaxY < tMaxZ)
 			{
+				if (tMaxY > radius) break;
 				Y += stepY;
-				if (Y == Chunk::HEIGHT)
-				{
-					return nullptr;
-				}
-				tMaxY = tMaxY + tDeltaY;
+				tMaxY += tDeltaY;
 			}
 			else
 			{
+				if (tMaxZ > radius) break;
 				Z += stepZ;
-				if (Z == Chunk::DEPTH)
-				{
-					return nullptr;
-				}
-				tMaxZ = tMaxZ + tDeltaZ;
+				tMaxZ += tDeltaZ;
 			}
 		}
 		blockPtr = m_chunks[0].GetBlock(X, Y, Z);
 	} while (!blockPtr);
+	if(blockPtr) printf("FOUND BLOCK: %d %d %d\n", X, Y, Z);
+	printf("\n");
 	return(blockPtr);
 }

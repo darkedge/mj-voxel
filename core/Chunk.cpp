@@ -500,3 +500,12 @@ mj::Chunk& mj::Chunk::operator=(mj::Chunk &&other)
 	}
 	return *this;
 }
+
+mj::Block *mj::Chunk::GetBlock(int32 x, int32 y, int32 z)
+{
+	if(x < 0 || x >= Chunk::WIDTH) return nullptr;
+	if(y < 0 || y >= Chunk::HEIGHT) return nullptr;
+	if(z < 0 || z >= Chunk::DEPTH) return nullptr;
+
+	return &m_blocks[x * Chunk::HEIGHT * Chunk::DEPTH + y * Chunk::DEPTH + z];
+}

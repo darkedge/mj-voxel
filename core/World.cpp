@@ -124,63 +124,62 @@ void mj::World::Tick()
 	}
 
 	// Pick voxel
-	Block *block = PickBlock();
+	BlockQuery query;
+	if (PickBlock(query))
+	{
+		DrawBlockHighlight(query.position);
+	}
 }
 
-mj::Block *mj::World::PickBlock()
+void mj::World::DrawBlockHighlight(const math::int3 &position)
 {
-	Block *blockPtr = nullptr;
-	// pls max length or rip
-	// ray = u + t * v
+
+}
+
+bool mj::World::PickBlock(mj::BlockQuery &query)
+{
+	query.block = nullptr;
+
 	math::float3 origin = m_player->GetPosition();
-
-	printf("origin: %.3f %.3f %.3f\n", origin.x, origin.y, origin.z);
-
 	math::float3 direction = m_player->Forward();
 
-	printf("direction: %.3f %.3f %.3f\n", direction.x, direction.y, direction.z);
-
-	int32 X = (int32) floor(origin.x);
-	int32 Y = (int32) floor(origin.y);
-	int32 Z = (int32) floor(origin.z);
+	query.position.x = (int32)floor(origin.x);
+	query.position.y = (int32)floor(origin.y);
+	query.position.z = (int32)floor(origin.z);
 
 	// = (-1/1) signs of vector dir
 	int32 stepX = (direction.x < 0) ? -1 : 1;
 	int32 stepY = (direction.y < 0) ? -1 : 1;
 	int32 stepZ = (direction.z < 0) ? -1 : 1;
 
-	printf("step: %d %d %d\n", stepX, stepY, stepZ);
+	auto IntBound = [](float s, float ds) {
+		return (ds > 0 ? ceil(s) - s : s - floor(s)) / abs(ds);
+	};
 
-	float tMaxX = math::IntBound(origin.x, direction.x);
-	float tMaxY = math::IntBound(origin.y, direction.y);
-	float tMaxZ = math::IntBound(origin.z, direction.z);
-
-	printf("tMax: %.3f %.3f %.3f\n", tMaxX, tMaxY, tMaxZ);
+	float tMaxX = IntBound(origin.x, direction.x);
+	float tMaxY = IntBound(origin.y, direction.y);
+	float tMaxZ = IntBound(origin.z, direction.z);
 
 	float tDeltaX = (float) stepX / direction.x; // length of v between two YZ-boundaries
 	float tDeltaY = (float) stepY / direction.y; // length of v between two XZ-boundaries
 	float tDeltaZ = (float) stepZ / direction.z; // length of v between two XY-boundaries
 
-	printf("tDelta: %.3f %.3f %.3f\n", tDeltaX, tDeltaY, tDeltaZ);
-
 	float radius = 10.0f;
 
-	blockPtr = nullptr;
 	do
 	{
-		printf("trace: %d %d %d\n", X, Y, Z);
 		if (tMaxX < tMaxY)
 		{
 			if (tMaxX < tMaxZ)
 			{
 				if (tMaxX > radius) break;
-				X += stepX;
+				query.position.x += stepX;
 				tMaxX += tDeltaX;
 			}
-			else
+			else  
 			{
 				if (tMaxZ > radius) break;
-				Z = Z + stepZ;
+				query.position.z += stepZ;
 				tMaxZ += tDeltaZ;
 			}
 		}
@@ -189,19 +188,19 @@ mj::Block *mj::World::PickBlock()
 			if (tMaxY < tMaxZ)
 			{
 				if (tMaxY > radius) break;
-				Y += stepY;
+				query.position.y += stepY;
 				tMaxY += tDeltaY;
 			}
 			else
 			{
 				if (tMaxZ > radius) break;
-				Z += stepZ;
+				query.position.z += stepZ;
 				tMaxZ += tDeltaZ;
 			}
 		}
-		blockPtr = m_chunks[0].GetBlock(X, Y, Z);
-	} while (!blockPtr);
-	if(blockPtr) printf("FOUND BLOCK: %d %d %d\n", X, Y, Z);
-	printf("\n");
-	return(blockPtr);
+		query.block = m_chunks[0].GetBlock(query.position.x, query.position.y, query.position.z);
+	} while (!query.block);
+	//if(blockPtr) printf("FOUND BLOCK: %d %d %d\n", X, Y, Z);
+	
+	return query.block != nullptr;
 }

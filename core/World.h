@@ -10,6 +10,13 @@ class Texture;
 class Chunk;
 class Block;
 class Transform;
+
+struct BlockQuery
+{
+	Block *block;
+	math::int3 position;
+};
+
 class World
 {
 public:
@@ -20,7 +27,8 @@ public:
 
 private:
 	void MovePlayer();
-	Block *PickBlock();
+	bool PickBlock(BlockQuery &query);
+	void DrawBlockHighlight(const math::int3 &position);
 
 	gl::Camera *m_camera = nullptr;
 	gl::Program *m_program = nullptr;

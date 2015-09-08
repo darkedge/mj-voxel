@@ -30,26 +30,6 @@ float Mod(float a, float n)
 	return remainder;
 }
 
-// Find the smallest positive t such that s+t*ds is an integer.
-float IntBound(float s, float ds)
-{
-#if 0
-	if (ds < 0.0f)
-	{
-		return IntBound(-s, -ds);
-	}
-	else
-	{
-		s = fmod(s, 1.0f);
-		//s = Mod(s, 1.0f);
-		// problem is now s+t*ds = 1
-		return (1.0f - s) / ds;
-	}
-#else
-	return (ds > 0? ceil(s)-s: s-floor(s)) / abs(ds);
-#endif
-}
-
 /************************************************************************/
 /* Vector2                                                              */
 /************************************************************************/

@@ -5,14 +5,20 @@ namespace mj {
 	class Vector
 	{
 	public:
-		Vector(); // TODO: other constructors
+		Vector();
+		Vector(const Vector &other);
 		explicit Vector( int32 size );
 		~Vector();
 
-		T& Add(); // Adds one element and returns a reference to it.
-		T& Add( const T &element ); // Adds one element and returns a reference to it.
-		T* Add( const T* ptr, int32 size ); // Adds an array of elements. Returns a pointer to the first added element.
-		T& Add( T &&element ); // Adds an element using move semantics.
+		// Default constructs one element and returns a reference to it.
+		T& Add();
+		// Copies the passed element and returns a reference to it.
+		T& Add( const T &element );
+		// Copies an array of elements. Returns a pointer to the first added element.
+		T* Add( const T* ptr, int32 size );
+		// Moves the passed element and returns a reference to it.
+		T& Add( T &&element );
+		// Moves the passed initializer list. Returns pointer to the first list element.
 		T* Add( std::initializer_list<T> l );
 
 		void Resize( int32 size );
@@ -44,8 +50,17 @@ namespace mj {
 	Vector<T>::Vector() :
 		m_ptr( nullptr ),
 		m_size( 0 ),
-		m_alloc( 0 )
+		m_alloc( 0 ) {}
+
+	// Copy constructor
+	template<class T>
+	Vector<T>::Vector(const Vector &other)
 	{
+		Resize(other.m_size);
+		for(int32 i = 0; i < m_size; i++)
+		{
+			m_ptr[i] = other[i];
+		}
 	}
 
 	template<class T>
@@ -70,14 +85,12 @@ namespace mj {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	// Add default constructed object and return reference
 	template<class T>
 	T& Vector<T>::Add()
 	{
 		return *Add( nullptr, 1 );
 	}
 
-	// Add a copy of an element
 	template<class T>
 	T& Vector<T>::Add( const T &element )
 	{
@@ -88,7 +101,6 @@ namespace mj {
 		return dst;
 	}
 
-	// Add by copying an array
 	template<class T>
 	T* Vector<T>::Add( const T* src, int32 size )
 	{
@@ -106,7 +118,6 @@ namespace mj {
 		return dst;
 	}
 
-	// Add by moving
 	template<class T>
 	T& Vector<T>::Add( T &&element )
 	{
@@ -117,7 +128,6 @@ namespace mj {
 		return dst;
 	}
 
-	// Add using initializer list
 	template<class T>
 	T* Vector<T>::Add( std::initializer_list<T> l )
 	{

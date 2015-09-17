@@ -14,6 +14,22 @@ template <typename T> struct mat4x3_t;
 template <typename T> struct mat3x3_t;
 template <typename T> struct quat_t;
 
+float Mod(float a, float n)
+{
+	// 	if (n == 0)
+	// 		throw new ArgumentOutOfRangeException("n", "(a mod 0) is undefined.");
+
+	//puts a in the [-n+1, n-1] range using the remainder operator
+	float remainder = fmod(a, n);
+
+	//if the remainder is less than zero, add n to put it in the [0, n-1] range if n is positive
+	//if the remainder is greater than zero, add n to put it in the [n-1, 0] range if n is negative
+	if ((n > 0.0f && remainder < 0.0f) ||
+		(n < 0.0f && remainder > 0.0f))
+		return remainder + n;
+	return remainder;
+}
+
 /************************************************************************/
 /* Vector2                                                              */
 /************************************************************************/
@@ -601,8 +617,59 @@ T Pi()
 }
 
 /************************************************************************/
+/* INTERSECTION                                                         */
+/************************************************************************/
+struct Ray
+{
+	float3 origin;
+	float3 direction;
+};
+
+struct RaycastHit
+{
+	float3 intersectionPoint;
+	float3 surfaceNormal;
+	float distance;
+};
+
+// Returns distance from ray origin to the intersection point.
+// Ignores planes facing away from the ray.
+bool Intersect(const Ray &ray, const float4 &plane, RaycastHit &hit)
+{
+	// A(X0 + Xd * t) + B(Y0 + Yd * t) + (Z0 + Zd * t) + D = 0
+	// t = -(AX0 + BY0 + CZ0 + D) / (AXd + BYd + CZd)
+	// t = -(Pn . R0 + D) / (Pn . Rd)
+	float3 Pn = float3(plane);
+	float Vd = Dot(Pn, ray.direction);
+	if (Vd >= 0.0f)
+	{
+		// == 0.0f: the ray is parallel to the plane and there is no intersection
+		// > 0.0f: the normal of the plane is pointing away from the ray
+		return false;
+	}
+	else
+	{
+		float V0 = -(Dot(float3(plane), ray.origin) + plane.w);
+
+		hit.distance = V0 / Vd;
+		if (hit.distance < 0)
+		{
+			// the ray intersects plane behind origin, i.e. no intersection of interest
+			return false;
+		}
+		else
+		{
+			hit.intersectionPoint = ray.origin + hit.distance * ray.direction;
+			hit.surfaceNormal = Pn;
+			return true;
+		}
+	}
+}
+
+/************************************************************************/
 /* FUNCTIONS                                                            */
 /************************************************************************/
+
 // radians
 template <typename T>
 T Deg2Rad( T degrees )

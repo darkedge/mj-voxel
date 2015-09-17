@@ -1,28 +1,40 @@
 #pragma once
-#include "Chunk.h"
 
 namespace mj {
-	namespace gl {
-		class Camera;
-		class Program;
-	}
-	class Chunk;
-	class Transform;
-	class World
-	{
-	public:
-		World();
-		~World();
+namespace gl {
+class Camera;
+class Program;
+class Texture;
+}
 
-		void Tick();
+class Chunk;
+class Block;
+class Transform;
 
-	private:
-		void MovePlayer();
+struct BlockQuery
+{
+	Block *block;
+	math::int3 position;
+};
 
-		gl::Camera *m_camera = nullptr;
-		gl::Program *m_program = nullptr;
-		Transform *m_player = nullptr;
+class World
+{
+public:
+	World();
+	~World();
 
-		Vector<Chunk> m_chunks;
-	};
+	void Tick();
+
+private:
+	void MovePlayer();
+	bool PickBlock(BlockQuery &query);
+	void DrawBlockHighlight(const math::int3 &position);
+
+	gl::Camera *m_camera = nullptr;
+	gl::Program *m_program = nullptr;
+	Transform *m_player = nullptr;
+	gl::Texture *m_texture = nullptr;
+
+	Vector<Chunk> m_chunks;
+};
 }

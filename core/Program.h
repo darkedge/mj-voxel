@@ -17,8 +17,7 @@ namespace mj {
 
 			void SetUniform( const char *name, const math::mat4 &mat );
 			void SetUniform( const char *name, const math::float3 &f);
-// 			void SetUniform( const char *name, const math::mat4 &mat );
-// 			void SetUniform( const char *name, const math::mat4 &mat );
+			void SetUniform( const char *name, int32 val);
 
 		private:
 			void AttachShaderFromFile( GLuint *shader, const char *file, ShaderType type );

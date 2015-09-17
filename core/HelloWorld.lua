@@ -1,7 +1,7 @@
 -- the first program in every language
 --io.write("Hello world, from ",_VERSION,"!\n")
 
-foo = 4
+foo = 4.2345
 bar = {}
 bar[3] = "hi"
 bar["key"] = "there"
